@@ -1,0 +1,136 @@
+<script>
+var context;
+
+var posx=200;
+var posy=200;
+
+var dist=100;
+var dist2=200;
+var offset2=Math.PI/4;
+
+var speed=0.2;
+var speed2=0.09;
+
+var fi=0;
+var fi2=0
+var fid;
+var fid2;
+
+var dfi=1;
+
+
+var stikalo=0;
+
+
+var posBall1x=200;
+var posBall1y=200;
+var posSunx=800;
+var posSuny=800
+
+function init()
+{
+  context= myCanvas.getContext('2d');
+  setInterval(draw,10);
+}
+
+function draw()
+{
+  context.clearRect(0,0, 1500,1500);
+  context.beginPath();
+  context.fillStyle="#0000ff";
+  
+    // ball 1 moves
+	fi+=0.1*dfi;
+	fid = speed*fi;
+	if (fid > Math.PI*2) {
+		fi = 0;
+	}
+	fi+=0.1*dfi;
+	
+    // ball 2 moves
+	fi2+=0.1*dfi;
+	fid2 = speed2*fi2;
+	if (fid2 > Math.PI*2) {
+		fi2 = 0;
+	}
+	fi2+=0.1*dfi;
+	
+	
+	
+  if (stikalo==0) {
+  
+
+	// position of sun
+	posx=posx
+	posy=posy
+  
+    // position of Ball 1
+	posBall1x = posx+dist*Math.sin(fid);
+	posBall1y = posy+dist*Math.sin(fid-Math.PI/2);
+	
+	// position of Ball 2
+	posBall2x = posx+dist2*Math.sin(fid2+offset2);
+	posBall2y = posy+dist2*Math.sin(fid2-Math.PI/2+offset2);
+	
+} else {
+	
+    // ball moves
+    //fi+=0.1*dfi;
+	
+	// position of sun
+	posx=posBall1x+dist*Math.sin(fid+Math.PI);
+	posy=posBall1y+dist*Math.sin(speed*fi-Math.PI/2+Math.PI);
+  
+    // position of Ball 1
+	posBall1x = posBall1x;
+	posBall1y = posBall1y;
+	
+	// position of Ball 2
+	posBall2x = posx+dist2*Math.sin(fid2+offset2);
+	posBall2y = posy+dist2*Math.sin(fid2-Math.PI/2+offset2);
+		
+}
+
+
+  // If I click, I want the Post of ball 2 to be const, and pos of ball 1 to be realitve to that.
+  
+  button.onclick = function(event) {
+	if (stikalo==1) {
+		stikalo = 0;
+	} else {
+		stikalo = 1;
+	}
+  };
+  
+
+  context.arc(posx,posy,30,0,Math.PI*2,true)
+  context.arc(posBall1x,posBall1y,10,0,Math.PI*2,true); 
+  context.arc(posBall2x,posBall2y,8,0,Math.PI*2,true); 
+
+  context.closePath();
+  context.fill();
+  
+  document.getElementById("demofi").innerHTML = fid;
+  document.getElementById("stikalo").innerHTML = stikalo;
+  document.getElementById("posx").innerHTML = posx;
+  document.getElementById("posy").innerHTML = posy;
+  document.getElementById("posBall1x").innerHTML = posBall1x;
+  document.getElementById("posBall1y").innerHTML = posBall1y;
+  
+}
+
+</script>
+
+
+<body onLoad="init();">
+	<button id="button">Click on me!</button>
+	<p id="stikalo"></p>
+	<p id="demofi"></p>
+	<p id="posx"></p>
+	<p id="posy"></p>
+	<p id="posBall1x"></p>
+	<p id="posBall1y"></p>
+
+  <canvas id="myCanvas" width="600" height="600" >
+  </canvas>
+</body>
