@@ -1,60 +1,83 @@
 <script>
+var daysEarth=365.265;
+var daysMercury=87.97;
+var daysVenus=224.701;
+var daysMars=686.971;
+var daysJupiter=4332.59;
+
+
+
 var context;
 
-var posx=200;
-var posy=200;
+// Starting position on the canvas
+var posx=300;
+var posy=300;
+var posEarthX=posx;
+var posEarthY=posy;
+var posMoonY;
+var posMoonY;
 
-var dist=100;
-var dist2=200;
+//Distance from Sun
+var distEarth=100;
+var distMars=200;
+var distJupiter=300;
 var offset2=Math.PI/4;
 
-var speed=0.2;
-var speed2=0.09;
+var speedEarth=0.09;
+var speedMars=speedEarth/(daysMars/daysEarth);
+var speedMercury=speedEarth/(daysMercury/daysEarth);
+var speedJupiter=speedEarth/(daysJupiter/daysEarth);
 
 var fi=0;
-var fi2=0
+var fiMars=0;
+var fiJupiter=0;
+
 var fid;
-var fid2;
+var fidMars;
+var fidJupiter;
 
 var dfi=1;
-
 
 var stikalo=0;
 
 
-var posBall1x=200;
-var posBall1y=200;
-var posSunx=800;
-var posSuny=800
-
 function init()
 {
   context= myCanvas.getContext('2d');
-  setInterval(draw,10);
+  setInterval(draw,1);					// Calls function draw 40 times a...? Well often.	
+  
 }
 
 function draw()
 {
-  context.clearRect(0,0, 1500,1500);
+  //context.clearRect(0,0, 3000,3000);
   context.beginPath();
-  context.fillStyle="#0000ff";
+
   
-    // ball 1 moves
+
+    // EARTH moves
 	fi+=0.1*dfi;
-	fid = speed*fi;
+	fid = speedEarth*fi;
 	if (fid > Math.PI*2) {
 		fi = 0;
 	}
 	fi+=0.1*dfi;
 	
-    // ball 2 moves
-	fi2+=0.1*dfi;
-	fid2 = speed2*fi2;
-	if (fid2 > Math.PI*2) {
-		fi2 = 0;
+    // MARS moves
+	fiMars+=0.1*dfi;
+	fidMars = speedMars*fiMars;
+	if (fidMars > Math.PI*2) {
+		fiMars = 0;
 	}
-	fi2+=0.1*dfi;
-	
+	fiMars+=0.1*dfi;
+
+	// JUPITER moves
+	fiJupiter+=0.1*dfi;
+	fidJupiter = speedJupiter*fiJupiter;
+	if (fidJupiter > Math.PI*2) {
+		fiJupiter = 0;
+	}
+	fiJupiter+=0.1*dfi;	
 	
 	
   if (stikalo==0) {
@@ -64,73 +87,116 @@ function draw()
 	posx=posx
 	posy=posy
   
-    // position of Ball 1
-	posBall1x = posx+dist*Math.sin(fid);
-	posBall1y = posy+dist*Math.sin(fid-Math.PI/2);
+    // position of Earth
+	posEarthX = posx+distEarth*Math.sin(fid);
+	posEarthY = posy+distEarth*Math.sin(fid-Math.PI/2);
 	
-	// position of Ball 2
-	posBall2x = posx+dist2*Math.sin(fid2+offset2);
-	posBall2y = posy+dist2*Math.sin(fid2-Math.PI/2+offset2);
+    // position of moon
+	posMoonX = posEarthX+20*Math.sin(27.322*fid);
+	posMoonY = posEarthY+20*Math.sin(27.322*fid-Math.PI/2);
 	
-} else {
+	// position of Mars
+	posMarsX = posx+distMars*Math.sin(fidMars+offset2);
+	posMarsY = posy+distMars*Math.sin(fidMars-Math.PI/2+offset2);
+
+	// position of Jupiter
+	posJupiterX = posx+distJupiter*Math.sin(fidJupiter+offset2);
+	posJupiterY = posy+distJupiter*Math.sin(fidJupiter-Math.PI/2+offset2);
 	
-    // ball moves
-    //fi+=0.1*dfi;
+} else if (stikalo==1) {
 	
 	// position of sun
-	posx=posBall1x+dist*Math.sin(fid+Math.PI);
-	posy=posBall1y+dist*Math.sin(speed*fi-Math.PI/2+Math.PI);
+	posx=posEarthX+distEarth*Math.sin(fid+Math.PI);
+	posy=posEarthY+distEarth*Math.sin(fid-Math.PI/2+Math.PI);
   
-    // position of Ball 1
-	posBall1x = posBall1x;
-	posBall1y = posBall1y;
+    // position of Earth
+	posEarthX = posEarthX;
+	posEarthY = posEarthY;
 	
-	// position of Ball 2
-	posBall2x = posx+dist2*Math.sin(fid2+offset2);
-	posBall2y = posy+dist2*Math.sin(fid2-Math.PI/2+offset2);
+    // position of moon
+	posMoonX = posEarthX+20*Math.sin(5*fid);
+	posMoonY = posEarthY+20*Math.sin(5*fid-Math.PI/2);
+	
+	// position of Mars
+	posMarsX = posx+distMars*Math.sin(fidMars+offset2);
+	posMarsY = posy+distMars*Math.sin(fidMars-Math.PI/2+offset2);
+
+	// position of Jupiter
+	posJupiterX = posx+distJupiter*Math.sin(fidJupiter+offset2);
+	posJupiterY = posy+distJupiter*Math.sin(fidJupiter-Math.PI/2+offset2);
 		
+} else if (stikalo==2) {
+
 }
 
-
   // If I click, I want the Post of ball 2 to be const, and pos of ball 1 to be realitve to that.
-  
   button.onclick = function(event) {
-	if (stikalo==1) {
-		stikalo = 0;
-	} else {
+	context.clearRect(0,0, 3000,3000);
+	if (stikalo==0) {
 		stikalo = 1;
+	} else if (stikalo==1) {
+		stikalo = 2;
+	} else if (stikalo==2) {
+		stikalo = 0;
 	}
   };
   
 
-  context.arc(posx,posy,30,0,Math.PI*2,true)
-  context.arc(posBall1x,posBall1y,10,0,Math.PI*2,true); 
-  context.arc(posBall2x,posBall2y,8,0,Math.PI*2,true); 
+  //context.arc(posx,posy,30,0,Math.PI*2,true)
+  //context.arc(posEarthX,posEarthY,10,0,Math.PI*2,true); 
+  //context.arc(posMarsX,posMarsY,1,0,Math.PI*2,true);
 
+
+  // SUN
+  context.fillStyle = 'orange';
+  context.fillRect(posx, posy, 15, 15);
+  
+  // EARTH
+  context.fillStyle = 'green';
+  context.fillRect(posEarthX, posEarthY, 7, 7);
+  
+  // MOON
+  context.fillStyle = 'black';
+  context.fillRect(posMoonX, posMoonY, 3, 3);
+  
+  // MARS
+  context.fillStyle = 'red';
+  context.fillRect(posMarsX, posMarsY, 9, 7);
+
+  // JUPITER
+  context.fillStyle = 'blue';
+  context.fillRect(posJupiterX, posJupiterY, 9, 7);
+
+
+
+
+
+  
+  
   context.closePath();
   context.fill();
-  
+
   document.getElementById("demofi").innerHTML = fid;
   document.getElementById("stikalo").innerHTML = stikalo;
   document.getElementById("posx").innerHTML = posx;
   document.getElementById("posy").innerHTML = posy;
-  document.getElementById("posBall1x").innerHTML = posBall1x;
-  document.getElementById("posBall1y").innerHTML = posBall1y;
+  document.getElementById("posEarthX").innerHTML = posEarthX;
+  document.getElementById("posEarthY").innerHTML = posEarthY;
   
 }
 
 </script>
 
 
-<body onLoad="init();">
+<body bgcolor="gray" onLoad="init();">
 	<button id="button">Click on me!</button>
 	<p id="stikalo"></p>
 	<p id="demofi"></p>
 	<p id="posx"></p>
 	<p id="posy"></p>
-	<p id="posBall1x"></p>
-	<p id="posBall1y"></p>
+	<p id="posEarthX"></p>
+	<p id="posEarthY"></p>
 
-  <canvas id="myCanvas" width="600" height="600" >
+  <canvas id="myCanvas" width="3000" height="3000" >
   </canvas>
 </body>
