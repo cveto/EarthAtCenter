@@ -23,6 +23,8 @@ var daysUranus=30688.5;
 var daysNeptune=60182;
 var daysPluto=90560;
 
+var daysMoon=27.322;
+
 // Distance from planets Sun in Astronomival units (calucaltions come from the eliptical equatino in kartezian coordinates)
 	// Mercury
 var distMercury=0.39;
@@ -113,6 +115,7 @@ var fiMercury=0;
 var fiVenus=0;
 var fiMars=0;
 var fiJupiter=0;
+var fiMoon=0;
 
 // fid will be weighed. Would be smarter to make cos(omega*t)
 var fid;
@@ -120,6 +123,7 @@ var fidMercury;
 var fidVenus;
 var fidMars;
 var fidJupiter;
+var fidMoon;
 
 // Ectra feautures.
 var drawOn=0;
@@ -144,7 +148,7 @@ function draw()
 {
 	// SPEEDS OF PLANETS REALTIVE TO EARTH
 	// Why was this done like this and not with angular frequency?
-	// Because relative speed doesn't matter. All that matters is the realitve body speed.
+	// Because absolute speed doesn't matter. All that matters is the realitve body speed.
 	speedEarth = document.getElementById("sliderSpeed").value/1000;
 	
 	var speedMercury=speedEarth/(daysMercury/daysEarth);
@@ -155,7 +159,7 @@ function draw()
 	var speedUranus=speedEarth/(daysUranus/daysEarth);
 	//var speedNeptune=speedEarth/(daysNeptune/daysEarth);
 	//var speedPluto=speedEarth/(daysPluto/daysEarth);
-	var speedMoon;
+	var speedMoon=speedEarth/(daysMoon/daysEarth);
  
  
 	// DRAW LINES?
@@ -203,6 +207,15 @@ function draw()
 		fiJupiter = 0;
 	}
 	fiJupiter+=0.1*dfi;	
+	
+	// Testing
+	// Moon phi
+	fiMoon+=0.1*dfi;
+	fidMoon = speedMoon*fiMoon;
+	if (fidMoon > Math.PI*2) {
+		fiMoon = 0;
+	}
+	fiMoon+=0.1*dfi;	
 
 	
     // Save old coordinates of Earth for Geocentric model 
@@ -231,9 +244,9 @@ function draw()
 		document.getElementById("button").innerHTML = "Swithch to GEOCENTRICAL model";
 	}
 
-    // COORDINATES of moon
-	posMoonX = posEarthX+20*Math.sin(27.322*fid);
-	posMoonY = posEarthY+20*Math.sin(27.322*fid-Math.PI/2);
+    // COORDINATES of moon  not accurate
+	posMoonX = posEarthX+20*Math.cos(fidMoon);
+	posMoonY = posEarthY+20*Math.sin(fidMoon);
 	
 	// COORDINATES of Mercury
 	posMercuryX = posSunX+linear_e_Mercury+distWeight*amplitudeXMercury*Math.cos(fidMercury);
@@ -295,7 +308,7 @@ function draw()
 
 	  // VENUS
 	if (document.getElementById("markVenus").checked == '1') {
-	  context.fillStyle = 'yellow';
+	  context.fillStyle = 'green';
 	  context.fillRect(posVenusX, posVenusY, linethickness, linethickness);
 	  
 
@@ -375,7 +388,8 @@ Sun: <input type="checkbox" id="markSun" checked="1"> |
 Moon: <input type="checkbox" id="markMoon" checked="1">
 SIZE: <input type="range" id="sliderSize" min="1" max="200" value="160">
 SPEED: <input type="range" id="sliderSpeed" min="0" max="300" value="20">
-
+<span id="test1"></span>  ||  
+<span id="test2"></span>
   <canvas id="myCanvas" width="5000" height="5000" >
   </canvas>
 
