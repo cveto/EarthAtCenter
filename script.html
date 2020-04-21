@@ -1,4 +1,4 @@
-script>
+<script>
 
 // This is a model which simulates OUR solar system. It's based on real eliptical trajectories. 
 // Distances from sun to the planets are scalled correctly. 
@@ -15,11 +15,14 @@ var context;
 // Year length for planets in Earth days
 var daysMercury=87.97;
 var daysVenus=224.701;
-@@ -13,59 +23,64 @@
+var daysEarth=365.265;
+var daysMars=686.971;
+var daysJupiter=4332.59;
+var daysSaturn=10759.22;
+var daysUranus=30688.5;
 var daysNeptune=60182;
 var daysPluto=90560;
 
-// Distance from planets Sun in Astronomival units
 // Distance from planets Sun in Astronomival units (calucaltions come from the eliptical equatino in kartezian coordinates)
 	// Mercury
 var distMercury=0.39;
@@ -68,33 +71,40 @@ var distNeptune=30.06;
 var distPluto=39.5
 var distMoon;
 
-// Weighing Astronomival units to make sence on the canvas
 	// Weighing Astronomical units so they can fit on the Canvas nicely.
 var distWeight=110;
 
 
-// Starting position on the canvas upon page load
 // Starting position of the planetary body on the canvas (1000px down, 1000px right from top left corner)
 // Only center for sun and Earth is really needed, the rest was put there for future proofing and because I like to declare variables.
 var posCenterX=1000;
 var posCenterY=1000;
 var posSunX=posCenterX;
 var posSunY=posCenterY;
-
-// Declaring variables
 var posMercuryX=posCenterX;
 var posMercuryY=posCenterY;
 var posVenusX=posCenterX;
-@@ -88,50 +103,48 @@
+var posVenusY=posCenterY;
+var posEarthX=posCenterX;
+var posEarthY=posCenterY;
+var posMarsX=posCenterX;
+var posMarsY=posCenterY;
+var posJupiterX=posCenterX;
+var posJupiterY=posCenterY;
+var posSaturnX=posCenterX;
+var posSaturnY=posCenterY;
+var posUranusX=posCenterX;
+var posUranusY=posCenterY;
+var posNeputneX=posCenterX;
+var posNeptuneY=posCenterY;
+var posPlutoX=posCenterX;
+var posPlutoY=posCenterY;
+var posMoonX;
 var posMoonY;
 
 // Speed of going around the sun
-var offset2=Math.PI/4;
-var speedEarth; // max 1
 var speedEarth; 			// max 1
 var drawInterval=1;
-
-
 
 // Poolar coordinate of the planetary body (used to derivate it to cartesian)
 // fi goes from -3.14 to +3.14 radians
@@ -114,64 +124,54 @@ var fidJupiter;
 // Ectra feautures.
 var drawOn=0;
 var testOn=0;
-var dfi=1;
 var dfi=1;				// How much the angle changes per frame
 
-var stikalo=0;
-var earthYears=0;
 var stikalo=0;			// Button is OFF
 var earthYears=0;	
 var pause = 1;
 var linethickness=2;
 
 
-// Make those curves elyptical
-var eccentricity=200;
-var BoverA=5;
-
 function init()
 {
   // Loads on page load. Sets upa  canvas and calls function many times per second
   context= myCanvas.getContext('2d');
   setInterval(draw,drawInterval);					// Calls function draw 40 times a...? Well often.	
-  
-
+ 
 }
 
 function draw()
 {
-
-
 	// SPEEDS OF PLANETS REALTIVE TO EARTH
 	// Why was this done like this and not with angular frequency?
 	// Because relative speed doesn't matter. All that matters is the realitve body speed.
 	speedEarth = document.getElementById("sliderSpeed").value/1000;
-
+	
 	var speedMercury=speedEarth/(daysMercury/daysEarth);
-@@ -143,14 +156,14 @@
+	var speedVenus=speedEarth/(daysVenus/daysEarth);
+	var speedMars=speedEarth/(daysMars/daysEarth);
+	var speedJupiter=speedEarth/(daysJupiter/daysEarth);
+	var speedSaturn=speedEarth/(daysSaturn/daysEarth);
+	var speedUranus=speedEarth/(daysUranus/daysEarth);
 	//var speedNeptune=speedEarth/(daysNeptune/daysEarth);
 	//var speedPluto=speedEarth/(daysPluto/daysEarth);
 	var speedMoon;
-
-
-
+ 
+ 
 	// DRAW LINES?
 	if (drawOn == 0) {
 		context.clearRect(0,0, 3000,3000);
 	}
-
-
-    // EARTH moves
-
+   
     // FI angle of the EARTH (omega*t) fid is (speed*omega*t)
 	fi+=0.1*dfi;
 	fid = speedEarth*fi;
 	if (fid > Math.PI*2) {
-@@ -159,31 +172,31 @@
+		fi = 0;
+		earthYears+=1;
 	}
 	fi+=0.1*dfi;
-
-    // MERCURY moves
+	
     // MERCURY phi
 	fiMercury+=0.1*dfi;
 	fidMercury = speedMercury*fiMercury;
@@ -180,7 +180,6 @@ function draw()
 	}
 	fiMercury+=0.1*dfi;
 
-    // VENUS moves
     // VENUS phi
 	fiVenus+=0.1*dfi;
 	fidVenus = speedVenus*fiVenus;
@@ -189,7 +188,6 @@ function draw()
 	}
 	fiVenus+=0.1*dfi;
 
-    // MARS moves
     // MARS phi
 	fiMars+=0.1*dfi;
 	fidMars = speedMars*fiMars;
@@ -198,61 +196,62 @@ function draw()
 	}
 	fiMars+=0.1*dfi;
 
-	// JUPITER moves
 	// JUPITER phi
 	fiJupiter+=0.1*dfi;
 	fidJupiter = speedJupiter*fiJupiter;
 	if (fidJupiter > Math.PI*2) {
-@@ -193,14 +206,15 @@
+		fiJupiter = 0;
+	}
+	fiJupiter+=0.1*dfi;	
 
-
+	
     // Save old coordinates of Earth for Geocentric model 
 	// Why? So I know how to move the coordinate system to put Earth always to the center
 	posEarthOLDx=posEarthX;
 	posEarthOLDy=posEarthY;
-
-	// TESTING POSITONM OF EARTH
+	
 	// COORDINATES OF EARTH
 	posEarthX = posSunX+linear_e_Earth+distWeight*amplitudeXEarth*Math.cos(fid);
 	posEarthY = posSunY+distWeight*amplitudeYEarth*Math.sin(fid);
-
-	// PUT EARTH TO CENTER
+	
 	// BUTTON TO PUT EARTH TO CENTER (Resets coordinates)
 	button_Test.onclick = function(event) {
 	posEarthX=posCenterX;
 	posEarthY=posCenterY;
-@@ -217,41 +231,38 @@
+	context.setTransform(1, 0, 0, 1, 0, 0);			// Resets the canvas
+    };
+	
+	// Toggle between Geocentrical and Heliocentrical model - for EARTH only
+ 	if (stikalo == 1) {
+		trnx=posEarthOLDx-posEarthX;
+		trny=posEarthOLDy-posEarthY;
+		context.translate(trnx, trny);
+    	document.getElementById("button").innerHTML = "Swithch to HELIOCENTRICAL model";
+	} else {
 		document.getElementById("button").innerHTML = "Swithch to GEOCENTRICAL model";
 	}
 
-    // position of moon
     // COORDINATES of moon
 	posMoonX = posEarthX+20*Math.sin(27.322*fid);
 	posMoonY = posEarthY+20*Math.sin(27.322*fid-Math.PI/2);
-
-	// position of Mercury
+	
 	// COORDINATES of Mercury
 	posMercuryX = posSunX+linear_e_Mercury+distWeight*amplitudeXMercury*Math.cos(fidMercury);
 	posMercuryY = posSunY+distWeight*amplitudeYMercury*Math.sin(fidMercury);
-
-
-	// position of Venus
+	
 	// COORDINATES of Venus
 	posVenusX = posSunX+linear_e_Venus+distWeight*amplitudeXVenus*Math.cos(fidVenus);
 	posVenusY = posSunY+distWeight*amplitudeYVenus*Math.sin(fidVenus);
 
-	// position of Mars	
 	// COORDINATES of Mars	
 	posMarsX = posSunX+linear_e_Mars+distWeight*amplitudeXMars*Math.cos(fidMars);
 	posMarsY = posSunY+distWeight*amplitudeYMars*Math.sin(fidMars);
 
-	// position of Jupiter
 	// COORDINATES of Jupiter
 	posJupiterX = posSunX+linear_e_Jupiter+distWeight*amplitudeXJupiter*Math.cos(fidJupiter);
 	posJupiterY = posSunY+distWeight*amplitudeYJupiter*Math.sin(fidJupiter);
 
 
-  // If I click, I want the Post of ball 2 to be const, and pos of ball 1 to be realitve to that.
   // TOGGLE BUTTON - between HELIOCENTRICAL or GEOCENTRICAL model
   button.onclick = function(event) {
 	context.clearRect(-3000,-3000, 3000,3000);
@@ -260,76 +259,113 @@ function draw()
 		stikalo = 1;
 	} else if (stikalo==1) {
 		stikalo = 0;
-	} else if (stikalo==2) {
-		stikalo = 0;
 	}
   };
-
-  // DRAW ON OFF
+	
   // TOGGLE BUTTON - DRAW ON or OFF
   button_Draw.onclick = function(event) {
 	if (drawOn==0) {
 		drawOn = 1;
-@@ -263,18 +274,17 @@
+		earthYears=0;
+		document.getElementById("button_Draw").innerHTML = "DRAW OFF";
+	} else if (drawOn==1) {
+		drawOn = 0;
+		document.getElementById("button_Draw").innerHTML = "DRAW ON";
 	}
   };
 
-
-	// DRAW ON CANVAS
 ////////// HERE is where I tell javascript to actually put anything on the canvas
 	var planetsize=30
-
 	context.beginPath();
-
-
-
+	
+	
+	
 	  // SUN
 	if (document.getElementById("markSun").checked == '1') {
 	  context.fillStyle = 'orange';
 	  context.fillRect(posSunX, posSunY, linethickness, linethickness);
-
 	} 
-
 	  // MERCURY
 	if (document.getElementById("markMercury").checked == '1') {
 	  context.fillStyle = 'blue';
-@@ -318,6 +328,7 @@
+	  context.fillRect(posMercuryX, posMercuryY, linethickness, linethickness);
+		
+
+	}  
+
+	  // VENUS
+	if (document.getElementById("markVenus").checked == '1') {
+	  context.fillStyle = 'yellow';
+	  context.fillRect(posVenusX, posVenusY, linethickness, linethickness);
+	  
+
+	} 
+
+	  // EARTH
+	if (document.getElementById("markEarth").checked == '1') {
+	  context.fillStyle = 'green';
+	  context.fillRect(posEarthX, posEarthY, linethickness, linethickness);
+	  
+
+	} 
+	  
+	  // MOON
+	if (document.getElementById("markMoon").checked == '1') {
+	  context.fillStyle = 'black';
+	  context.fillRect(posMoonX, posMoonY, linethickness, linethickness);
+	} 
+
+	  // MARS
+	if (document.getElementById("markMars").checked == '1') {
+		context.fillStyle = 'red';
+		context.fillRect(posMarsX, posMarsY, linethickness, linethickness);
+		
+	} 
+
+	  // JUPITER
+	if (document.getElementById("markJupiter").checked == '1') {
+	  context.fillStyle = 'blue';
 	  context.fillRect(posJupiterX, posJupiterY, linethickness, linethickness);
 	}
-
+	
 	// DRAW lines if DRAW is on
 	if (drawOn!=1) {
 		var imgjupiter = document.getElementById("imgjupiter");
 		context.drawImage(imgjupiter, posJupiterX-planetsize/2, posJupiterY-planetsize/2,planetsize,planetsize);
-@@ -342,43 +353,38 @@
+
+		var imgmars = document.getElementById("imgmars");
+		context.drawImage(imgmars, posMarsX-planetsize/2, posMarsY-planetsize/2,planetsize,planetsize);
+		
+	    var imgearth = document.getElementById("imgearth");
+	    context.drawImage(imgearth, posEarthX-planetsize/2, posEarthY-planetsize/2,planetsize,planetsize);
+	  
+	    var imgvenus = document.getElementById("imgvenus");
+	    context.drawImage(imgvenus, posVenusX-planetsize/2, posVenusY-planetsize/2,planetsize,planetsize);
+		  
+		var imgmercury = document.getElementById("imgmercury");
+	    context.drawImage(imgmercury, posMercuryX-planetsize/2, posMercuryY-planetsize/2,planetsize,planetsize);
+		
+		var imgsun = document.getElementById("imgsun");
+		context.drawImage(imgsun, posSunX-planetsize/2, posSunY-planetsize/2,planetsize,planetsize);
+	}
+
+	context.closePath();
 	context.fill();
 
 
-
-	document.getElementById("stikalo").innerHTML = stikalo;
 	// Get variables from HTML to JAVASCRIPT
 	document.getElementById("earthYears").innerHTML = earthYears;  
 	distWeight = document.getElementById("sliderSize").value;
 }
 </script>
 
-
 <body bgcolor="white" onLoad="init();">
 	<button id="button">Switch to GEOCENTRICAL Model</button>	
 	<button id="button_Draw">DRAW ON</button>  
 	<button id="button_Test">CENTRALIZE VIEW</button>
-	<button id="button_pause" value="1">PAUSE</button>
-	<p id="stikalo"></p>
-	<p>Earth Years: +1Y error <span id="earthYears"></span></p>
 	<p>Earth Years: +1Y error: <span id="earthYears"></span></p>
 	<p>Pause status: <span id="pauseStatus">unknown</span></p>
 
-Mercury: <input type="checkbox" id="markMercury" checked="1"> |
-Venus: <input type="checkbox" id="markVenus" checked="1"> |
-Earth: <input type="checkbox" id="markEarth" checked="1"> |
-Mars: <input type="checkbox" id="markMars" checked="1"> |
-Jupiter: <input type="checkbox" id="markJupiter" checked="1"> |
-Sun: <input type="checkbox" id="markSun" checked="1"> |
 Mercury: <input type="checkbox" id="markMercury" checked="1"> | 
 Venus: <input type="checkbox" id="markVenus" checked="1"> | 
 Earth: <input type="checkbox" id="markEarth" checked="1"> | 
@@ -342,15 +378,6 @@ SPEED: <input type="range" id="sliderSpeed" min="0" max="300" value="20">
 
   <canvas id="myCanvas" width="5000" height="5000" >
   </canvas>
-
-
-<img id="imgsun" src="sun.png"></img>
-<img id="imgmercury" src="mercury.png"></img>
-<img id="imgvenus" src="venus.png"></img>
-<img id="imgearth" src="earth.png"></img>
-<img id="imgmars" src="mars.png"></img>
-<img id="imgjupiter" src="jupiter.png"></img>
-<img id="imgmoon" src="moon.png"></img>
 
 <!-- They are here because I didn't find a nother way for Javascript to load images from file. -->
 <img id="imgsun" src="sun.png" style="display: none;" />
