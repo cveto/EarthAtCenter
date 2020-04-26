@@ -16,19 +16,17 @@ html *
   text-align: center;
 
 }
-#parent {
+#parent { /*https://stackoverflow.com/questions/446060/css-two-divs-next-to-each-other*/
   display: flex;
   padding-left: 60px;
 }
 #narrow {
   width: 100px;
-  background: red;
   /* Just so it's visible */
 }
 #wide {
   flex: 1;
   /* Grow to rest of container */
-  background-color: "blue";
   /* Just so it's visible */
 }
 
@@ -149,7 +147,7 @@ var posMoonY;
 
 // Speed of going around the sun
 var speedEarth; 			// max 1
-var drawInterval=1;
+var drawInterval=20;
 
 // Poolar coordinate of the planetary body (used to derivate it to cartesian)
 // fi goes from -3.14 to +3.14 radians
@@ -276,8 +274,9 @@ function draw()
 	//var speedPluto=speedEarth/(daysPluto/daysEarth);
 	var speedMoon=speedEarth/(daysMoon/daysEarth);
  
+ 
 
-   
+ // THIS MAKES THEM TICK.  
     // FI angle of the EARTH (omega*t) fid is (speed*omega*t)
 	fi+=0.1*dfi;
 	fid = speedEarth*fi;
@@ -349,10 +348,10 @@ function draw()
  	if (stikalo == 1) {
 		trnx=posEarthOLDx-posEarthX;
 		trny=posEarthOLDy-posEarthY;
-		context.translate(trnx, trny);
-    	document.getElementById("button").innerHTML = "Swithch to HELIOCENTRICAL model";
+		context.translate(trnx, trny);			// THIS IS WHERE THE CONTEXT TRANSLATES; AAAA
+    	document.getElementById("button_Switch").innerHTML = "Switch to HELIOCENTRICAL model";
 	} else {
-		document.getElementById("button").innerHTML = "Swithch to GEOCENTRICAL model";
+		document.getElementById("button_Switch").innerHTML = "Switch to GEOCENTRICAL model";
 	}
 
     // COORDINATES of moon  not accurate
@@ -377,7 +376,7 @@ function draw()
 
 
   // TOGGLE BUTTON - between HELIOCENTRICAL or GEOCENTRICAL model
-  button.onclick = function(event) {
+  button_Switch.onclick = function(event) {
 	if (stikalo==0) {
 		stikalo = 1;
 	} else if (stikalo==1) {
@@ -385,7 +384,7 @@ function draw()
 	}
   };
 	
-  // TOGGLE BUTTON - DRAW ON or OFF
+  // TOGGLE BUTTON - DRAW ON or OFF        ON CLICK
   button_Draw.onclick = function(event) {
 	if (drawOn==0) {
 		drawOn = 1;
@@ -396,13 +395,16 @@ function draw()
 		document.getElementById("button_Draw").innerHTML = "DRAW ON";
 	}
   };
+  
+    button_Clear.onclick = function(event) {
+		clear();
+	};
 
 	////////// HERE is where I tell javascript to actually put anything on the canvas
 	var planetsize=30
 	context.beginPath();
-	
+		
 
-	
 	
 	////////////////// MAKES DOTS!
 	  // SUN
@@ -452,9 +454,16 @@ function draw()
 	// DRAW lines if DRAW is ON, then stop showing images
 	if (drawOn==0) {	
 		flag_draw=0;	
+		
+
 
 		context.clearRect(0,0, contextWidth,contextHeight);
-	
+		
+		context.fillRect(0,20,distWeight,2);
+		context.font = "bold 12px Lucida Console";		
+		context.fillText(" 1 AO = 150.000.000km", distWeight,24);
+
+
 		var imgjupiter = document.getElementById("imgjupiter");
 		context.drawImage(imgjupiter, posJupiterX-planetsize/2, posJupiterY-planetsize/2,planetsize,planetsize);
 
@@ -483,7 +492,6 @@ function draw()
 		}
 
 	}
-
 	context.closePath();
 	context.fill();
 
@@ -501,9 +509,11 @@ function draw()
 	<div class="narrow">
 		<br /><br />
 			<br /><br />
-		<button class="button" id="button">Switch to GEOCENTRICAL Model</button>	<br /><br />
-		<button class="button" id="button_Draw">DRAW LINES</button>  <br /><br />
+		<button class="button" id="button_Switch">Switch to GEOCENTRICAL Model</button>	<br /><br />
 		<button class="button" id="button_Test">CENTRALIZE VIEW</button><br /><br />
+		<button class="button" id="button_Draw">DRAW LINES</button>  <br /><br />
+		<button class="button" id="button_Clear"">CLEAR LINES</button><br /><br />
+
 
 		Mercury: <input type="checkbox" id="markMercury" checked="1"><br />
 		Venus:&nbsp;&nbsp; <input type="checkbox" id="markVenus" checked="1"><br />
@@ -512,9 +522,26 @@ function draw()
 		Jupiter: <input type="checkbox" id="markJupiter" checked="1"><br />
 		Sun: &nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" id="markSun" checked="1"><br />
 		Moon: &nbsp;&nbsp;&nbsp;<input type="checkbox" id="markMoon" checked="1"><br /><br />
-		SIZE: <input type="range" id="sliderSize" min="1" max="300" value="265"><br />
+		SIZE:&nbsp; <input type="range" id="sliderSize" min="1" max="500" value="265"><br />
 		SPEED: <input type="range" id="sliderSpeed" min="0" max="300" value="40"><br />
-		<p style="font-size:60	px"><b>Earth Years: </b><span id="earthYears"></span></p>
+		<p style="font-size:60	px"><b>Earth Years: </b><span id="earthYears"></span></p> <br /> <br />
+		
+		
+		M - DRAW or DON'T DRAW MERCURY <br>
+		V - DRAW or DON'T DRAW CENUS <br>
+		E - DRAW or DON'T DRAW EARTH <br>
+		M - DRAW or DON'T DRAW MARS <br>
+		J - DRAW or DON'T DRAW JUPITER <br />
+		S - DRAW or DON'T DRAW SATURN 	
+		R - DRAW or DON'T DRAW MOON	
+		
+		<br><br>
+		C - CLEAR IMAGE && RESET TIME <br />
+		D - DRAW ON/OFF<br />
+		
+
+		
+		
 	</div>
 
 	<div class="wide">
