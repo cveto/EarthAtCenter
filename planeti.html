@@ -10,29 +10,58 @@ body
 }
 
 .button {
-
   padding: 15px 32px;
-  width: 220px;
+  width: 230px;
   text-align: center;
-
+  font-weight: bold;
 }
-#parent { /*https://stackoverflow.com/questions/446060/css-two-divs-next-to-each-other*/
-  display: flex;
-  padding-left: 10px;
-   border: 3px solid green;
 
-
+input[type="range"] {
+  width:170px;
 }
-#narrow {
-  width: 100px;
-   border: 3px solid red;
 
-}
-#wide {
-  flex: 1;
-   border: 3px solid green;
 
+#wrapper {
+    width: 100%;
 }
+			#levi {
+				border-right: 3px solid gray;
+				word-wrap: break-word;
+				order: 3px solid #73AD21;
+				padding: 12px;
+					width: 270px;
+					float: left;
+					height: 100%;
+					-webkit-box-sizing: border-box;
+					-moz-box-sizing: border-box;
+					box-sizing: border-box;
+			}
+
+			#desni {
+			  float: left;
+			  position: relative;
+				/*Declare width and it will break, unless in percentages*/
+				float: left;
+				border-right: 1px solid white;
+				-webkit-box-sizing: border-box;
+				-moz-box-sizing: border-box;
+				box-sizing: border-box;
+			}
+
+				#zadej {
+				  width: 100%;
+				  position: absolute;
+				  top: 0;
+				  left: 0;
+				}
+				#spredej {
+				  width: 100%;
+				  height: 100%;
+				  position: absolute;
+				  top: 0;
+				  left: 0;
+				  z-index: 10;
+			}
 
 </style>
 
@@ -47,9 +76,21 @@ body
 
 
 // Declaring global variables.. is this necessary?
+var canvas;
+var canvasbg;
+
 var context;
-var canvasHeight=2000;
-var canvasWidth=2000;
+var contextbg;
+
+var canvasHeight=1080;
+var canvasWidth=1920;
+var contextWidth=canvasWidth;
+var contextHeight=canvasHeight;
+var posCenterX=contextWidth/2;
+var posCenterY=contextHeight/2;
+
+// TIME STOP
+timeIncreasing = 1;
 
 /////////// CONSTANTS and it's derivations ////////////
 // Year length for planets in Earth days
@@ -120,10 +161,7 @@ var distWeight=110;
 // Starting position of the planetary body on the canvas (1000px down, 1000px right from top left corner)
 // Only center for sun and Earth is really needed, the rest was put there for future proofing and because I like to declare variables.
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-var posCenterX=700;
-var posCenterY=540;
-var contextWidth=3000;
-var contextHeight=3000;
+
 
 
 var posSunX=posCenterX;
@@ -178,11 +216,10 @@ var dfi=1;				// How much the angle changes per frame
 var stikalo=0;			// Button is OFF
 var earthYears=0;	
 var pause = 1;
-var linethickness=2;
+var linethickness=2;	// default, will be rewritten
 
 // FLAGS
 var flag_draw=0;
-var canvas;
 
 
 function init()
@@ -211,8 +248,27 @@ function init()
 				clear();
 		}
 	}	
+	
+	// UNCHECK ALL TICKBOXES
+	document.getElementById("markMercury").checked=0;
+	document.getElementById("markVenus").checked=0;
+	document.getElementById("markEarth").checked=1;
+	document.getElementById("markMars").checked=0;
+	document.getElementById("markJupiter").checked=0;
+	
+	document.getElementById("markMoon").checked=1;
+	document.getElementById("markSun").checked=1;
 
 
+
+  // Background CANVAS 
+
+  	    canvasbg = document.getElementById("backgroundCanvas");
+		canvasbg.width=canvasWidth;
+		canvasbg.height=canvasHeight;
+		
+	contextbg = canvasbg.getContext("2d");
+		
   // Loads on page load. Sets upa  canvas and calls function many times per second
   
   	    canvas = document.getElementById("myCanvas");
@@ -220,6 +276,9 @@ function init()
 		canvas.height=canvasHeight;
 	
 	context = canvas.getContext("2d");
+	
+// DRAW SOMETHING
+
   
   setInterval(draw,drawInterval);					// Calls function draw 40 times a...? Well often.	
  
@@ -235,6 +294,7 @@ function togglePlanet(body) {
 }
 
 function clear() {
+	context.translate(0,0);				// So it clear from the actual zero
 	context.clearRect(0, 0, canvas.width, canvas.height);
 	t=0;
 	fi=0;
@@ -245,6 +305,7 @@ function clear() {
 	fiMoon=0;
 	earthYears=0;
 }
+
 
 
 
@@ -267,7 +328,10 @@ function draw()
 	// Why was this done like this and not with angular frequency?
 	// Because absolute speed doesn't matter. All that matters is the realitve body speed.
 	speedEarth = document.getElementById("sliderSpeed").value/1000;
+	linethickness = document.getElementById("sliderLineThickness").value;
+
 	
+	// SPEEDS
 	var speedMercury=speedEarth/(daysMercury/daysEarth);
 	var speedVenus=speedEarth/(daysVenus/daysEarth);
 	var speedMars=speedEarth/(daysMars/daysEarth);
@@ -277,60 +341,70 @@ function draw()
 	//var speedNeptune=speedEarth/(daysNeptune/daysEarth);
 	//var speedPluto=speedEarth/(daysPluto/daysEarth);
 	var speedMoon=speedEarth/(daysMoon/daysEarth);
+	
+	// PICTURES FOR PLANETS
+		
+	var imgmercury = document.getElementById("imgmercury");
+    var imgvenus = document.getElementById("imgvenus");
+    var imgearth = document.getElementById("imgearth");
+	var imgmars = document.getElementById("imgmars");
+	var imgjupiter = document.getElementById("imgjupiter");
+	var imgsun = document.getElementById("imgsun");
+	var imgmoon = document.getElementById("imgmoon");
  
  
+if (timeIncreasing==1) {
+		 // THIS MAKES THEM TICK.  
+			// FI angle of the EARTH (omega*t) fid is (speed*omega*t)
+			fi+=0.1*dfi;
+			fid = speedEarth*fi;
+			if (fid > Math.PI*2) {
+				fi = 0;
+				earthYears+=1;
+			}
+			fi+=0.1*dfi;
+			
+			// MERCURY phi
+			fiMercury+=0.1*dfi;
+			fidMercury = speedMercury*fiMercury;
+			if (fidMercury > Math.PI*2) {
+				fiMercury = 0;
+			}
+			fiMercury+=0.1*dfi;
 
- // THIS MAKES THEM TICK.  
-    // FI angle of the EARTH (omega*t) fid is (speed*omega*t)
-	fi+=0.1*dfi;
-	fid = speedEarth*fi;
-	if (fid > Math.PI*2) {
-		fi = 0;
-		earthYears+=1;
-	}
-	fi+=0.1*dfi;
-	
-    // MERCURY phi
-	fiMercury+=0.1*dfi;
-	fidMercury = speedMercury*fiMercury;
-	if (fidMercury > Math.PI*2) {
-		fiMercury = 0;
-	}
-	fiMercury+=0.1*dfi;
+			// VENUS phi
+			fiVenus+=0.1*dfi;
+			fidVenus = speedVenus*fiVenus;
+			if (fidVenus > Math.PI*2) {
+				fiVenus = 0;
+			}
+			fiVenus+=0.1*dfi;
 
-    // VENUS phi
-	fiVenus+=0.1*dfi;
-	fidVenus = speedVenus*fiVenus;
-	if (fidVenus > Math.PI*2) {
-		fiVenus = 0;
-	}
-	fiVenus+=0.1*dfi;
+			// MARS phi
+			fiMars+=0.1*dfi;
+			fidMars = speedMars*fiMars;
+			if (fidMars > Math.PI*2) {
+				fiMars = 0;
+			}
+			fiMars+=0.1*dfi;
 
-    // MARS phi
-	fiMars+=0.1*dfi;
-	fidMars = speedMars*fiMars;
-	if (fidMars > Math.PI*2) {
-		fiMars = 0;
-	}
-	fiMars+=0.1*dfi;
-
-	// JUPITER phi
-	fiJupiter+=0.1*dfi;
-	fidJupiter = speedJupiter*fiJupiter;
-	if (fidJupiter > Math.PI*2) {
-		fiJupiter = 0;
-	}
-	fiJupiter+=0.1*dfi;	
-	
-	// Testing
-	// Moon phi
-	fiMoon+=0.1*dfi;
-	fidMoon = speedMoon*fiMoon;
-	if (fidMoon > Math.PI*2) {
-		fiMoon = 0;
-	}
-	fiMoon+=0.1*dfi;	
-
+			// JUPITER phi
+			fiJupiter+=0.1*dfi;
+			fidJupiter = speedJupiter*fiJupiter;
+			if (fidJupiter > Math.PI*2) {
+				fiJupiter = 0;
+			}
+			fiJupiter+=0.1*dfi;	
+			
+			// Testing
+			// Moon phi
+			fiMoon+=0.1*dfi;
+			fidMoon = speedMoon*fiMoon;
+			if (fidMoon > Math.PI*2) {
+				fiMoon = 0;
+			}
+			fiMoon+=0.1*dfi;	
+}
 	
     // Save old coordinates of Earth for Geocentric model 
 	// Why? So I know how to move the coordinate system to put Earth always to the center
@@ -342,7 +416,7 @@ function draw()
 	posEarthY = posSunY+distWeight*amplitudeYEarth*Math.sin(fid);
 	
 	// BUTTON TO PUT EARTH TO CENTER (Resets coordinates)
-	button_Test.onclick = function(event) {
+	button_Centralize.onclick = function(event) {
 	posEarthX=posCenterX;
 	posEarthY=posCenterY;
 	context.setTransform(1, 0, 0, 1, 0, 0);			// Resets the canvas
@@ -404,97 +478,120 @@ function draw()
 		clear();
 	};
 
+	
+  button_StopTime.onclick = function(event) {
+	if (timeIncreasing==0) {
+		timeIncreasing=1;
+		document.getElementById("button_StopTime").innerHTML = "PAUSE";
+	} else if (timeIncreasing==1) {
+		timeIncreasing = 0;
+		document.getElementById("button_StopTime").innerHTML = "RESUME";
+	}
+  };
+	
+
 	////////// HERE is where I tell javascript to actually put anything on the canvas
 	var planetsize=30
 	context.beginPath();
 		
-
-	
-	////////////////// MAKES DOTS!
-	  // SUN
-	if (document.getElementById("markSun").checked == '1') {
-	  context.fillStyle = 'orange';
-	  context.fillRect(posSunX, posSunY, linethickness, linethickness);
-	} 
-	  // MERCURY
-	if (document.getElementById("markMercury").checked == '1') {
-	  context.fillStyle = 'blue';
-	  context.fillRect(posMercuryX, posMercuryY, linethickness, linethickness);
-	}  
-
-	  // VENUS
-	if (document.getElementById("markVenus").checked == '1') {
-	  context.fillStyle = 'purple';
-	  context.fillRect(posVenusX, posVenusY, linethickness, linethickness);
-	} 
-
-	  // EARTH
-	if (document.getElementById("markEarth").checked == '1') {
-	  context.fillStyle = 'green';
-	  context.fillRect(posEarthX, posEarthY, linethickness, linethickness);
-	} 
-	  
-	  // MOON
-	if (document.getElementById("markMoon").checked == '1') {
-	  context.fillStyle = 'black';
-	  context.fillRect(posMoonX, posMoonY, linethickness, linethickness);
-	} 
-
-	  // MARS
-	if (document.getElementById("markMars").checked == '1') {
-		context.fillStyle = 'red';
-		context.fillRect(posMarsX, posMarsY, linethickness, linethickness);
-	} 
-
-	  // JUPITER
-	if (document.getElementById("markJupiter").checked == '1') {
-	  context.fillStyle = 'blue';
-	  context.fillRect(posJupiterX, posJupiterY, linethickness, linethickness);
-	}
-	
-	
-	
 	// PUTS PLANTES ON THE CANVAS
 	// DRAW lines if DRAW is ON, then stop showing images
+	
+	
 	if (drawOn==0) {	
 		flag_draw=0;	
 		
+	// START DRAWING		// ON BACKGROUND CANVAS
 
-
+		context.translate(0,0)
 		context.clearRect(0,0, contextWidth,contextHeight);
-		//context.fillRect(0,20,distWeight,2);
-		//context.font = "bold 12px Lucida Console";		
-		//context.fillText(" 1 AO = 150.000.000km", distWeight,24);				// IT's moving, have to put it in a backgroudn canvsa... yet again toa voud that.
-
-
-		var imgjupiter = document.getElementById("imgjupiter");
-		context.drawImage(imgjupiter, posJupiterX-planetsize/2, posJupiterY-planetsize/2,planetsize,planetsize);
-
-		var imgmars = document.getElementById("imgmars");
-		context.drawImage(imgmars, posMarsX-planetsize/2, posMarsY-planetsize/2,planetsize,planetsize);
-		
-	    var imgearth = document.getElementById("imgearth");
-	    context.drawImage(imgearth, posEarthX-planetsize/2, posEarthY-planetsize/2,planetsize,planetsize);
-	  
-	    var imgvenus = document.getElementById("imgvenus");
-	    context.drawImage(imgvenus, posVenusX-planetsize/2, posVenusY-planetsize/2,planetsize,planetsize);
-		  
-		var imgmercury = document.getElementById("imgmercury");
-	    context.drawImage(imgmercury, posMercuryX-planetsize/2, posMercuryY-planetsize/2,planetsize,planetsize);
-		
-		var imgsun = document.getElementById("imgsun");
-		context.drawImage(imgsun, posSunX-planetsize/2, posSunY-planetsize/2,planetsize,planetsize);
-		
-		var imgmoon = document.getElementById("imgmoon");
+		  // SUN
+		if (document.getElementById("markSun").checked == '1') {
+		context.drawImage(imgsun, posSunX-planetsize/2, posSunY-planetsize/2,planetsize,planetsize)
+		} 
+		  // MOON
+		if (document.getElementById("markMoon").checked == '1') {
 		context.drawImage(imgmoon, posMoonX-planetsize/4, posMoonY-planetsize/4,planetsize/2,planetsize/2);
+		} 
+
+		  // MERCURY
+		if (document.getElementById("markMercury").checked == '1') {
+	    context.drawImage(imgmercury, posMercuryX-planetsize/2, posMercuryY-planetsize/2,planetsize,planetsize);
+		}  
+		  // VENUS
+		if (document.getElementById("markVenus").checked == '1') {
+	    context.drawImage(imgvenus, posVenusX-planetsize/2, posVenusY-planetsize/2,planetsize,planetsize);
+		} 
+		  // EARTH
+		if (document.getElementById("markEarth").checked == '1') {
+	    context.drawImage(imgearth, posEarthX-planetsize/2, posEarthY-planetsize/2,planetsize,planetsize);
+		} 
+		  // MARS
+		if (document.getElementById("markMars").checked == '1') {
+		context.drawImage(imgmars, posMarsX-planetsize/2, posMarsY-planetsize/2,planetsize,planetsize);
+		} 
+		  // JUPITER
+		if (document.getElementById("markJupiter").checked == '1') {
+		context.drawImage(imgjupiter, posJupiterX-planetsize/2, posJupiterY-planetsize/2,planetsize,planetsize);
+		}
+
 		
-	} else { // CLEAR ONLY ONCE
+	} else {		// DRAW IS OFF - show planets
+	
+		// CLEAR ONLY ONCE
 		if (flag_draw==0) {
 			context.clearRect(0,0, contextWidth,contextHeight);
 			flag_draw=1;	
 		}
 
+		// WHICH PLANET?
+		////////////////// MAKES DOTS!
+		  // SUN
+		if (document.getElementById("markSun").checked == '1') {
+		  context.fillStyle = 'orange';
+		  context.fillRect(posSunX, posSunY, linethickness, linethickness);
+		} 
+		  // MERCURY
+		if (document.getElementById("markMercury").checked == '1') {
+		  context.fillStyle = 'blue';
+		  context.fillRect(posMercuryX, posMercuryY, linethickness, linethickness);
+		}  
+		  // VENUS
+		if (document.getElementById("markVenus").checked == '1') {
+		  context.fillStyle = 'purple';
+		  context.fillRect(posVenusX, posVenusY, linethickness, linethickness);
+		} 
+		  // EARTH
+		if (document.getElementById("markEarth").checked == '1') {
+		  context.fillStyle = 'green';			
+		  context.fillRect(posEarthX, posEarthY, linethickness, linethickness);
+		  //ontext.arc(posEarthX, posEarthY, linethickness,0,2*Math.PI);
+		} 
+		 
+		  // MOON
+		if (document.getElementById("markMoon").checked == '1') {
+		  context.fillStyle = 'black';
+		  context.fillRect(posMoonX, posMoonY, linethickness, linethickness);
+		} 
+		  // MARS
+		if (document.getElementById("markMars").checked == '1') {
+			context.fillStyle = 'red';
+			context.fillRect(posMarsX, posMarsY, linethickness, linethickness);
+		} 
+		  // JUPITER
+		if (document.getElementById("markJupiter").checked == '1') {
+		  context.fillStyle = 'blue';
+		  context.fillRect(posJupiterX, posJupiterY, linethickness, linethickness);
+		}
+		
 	}
+	
+	// SHOW UNITS ON BACKGROUND CNAVA
+		contextbg.clearRect(0,0, contextWidth,contextHeight);
+		contextbg.fillRect(0,20,distWeight,2);
+		contextbg.font = "bold 14px Lucida Console";		
+		contextbg.fillText(" 1 AO ≈ 150.000.000km", distWeight,24);				// IT's moving, have to put it in a backgroudn canvsa... yet again toa voud that.
+
 	context.closePath();
 	context.fill();
 
@@ -507,73 +604,67 @@ function draw()
 
 <body bgcolor="white" onLoad="init();">
 
-<div id="parent">
-
-	<div class="narrow">
-		<br /><br />
-			<br /><br />
-		<button class="button" id="button_Switch">Switch to GEOCENTRICAL Model</button>	<br /><br />
-		<button class="button" id="button_Test">CENTRALIZE VIEW</button><br /><br />
-		<button class="button" id="button_Draw">DRAW LINES</button>  <br /><br />
-		<button class="button" id="button_Clear"">CLEAR LINES</button><br /><br />
 
 
-		Mercury: <input type="checkbox" id="markMercury" checked="1"><br />
-		Venus:&nbsp;&nbsp; <input type="checkbox" id="markVenus" checked="1"><br />
-		Earth: &nbsp;&nbsp;<input type="checkbox" id="markEarth" checked="1"><br />
-		Mars: &nbsp;&nbsp;&nbsp;<input type="checkbox" id="markMars" checked="1"><br /> 
-		Jupiter: <input type="checkbox" id="markJupiter" checked="1"><br />
-		Sun: &nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" id="markSun" checked="1"><br />
-		Moon: &nbsp;&nbsp;&nbsp;<input type="checkbox" id="markMoon" checked="1"><br /><br />
-		SIZE:&nbsp; <input type="range" id="sliderSize" min="1" max="500" value="240"><br />
-		SPEED: <input type="range" id="sliderSpeed" min="0" max="300" value="40"><br />
-		<p style="font-size:60	px"><b>Earth Years: </b><span id="earthYears"></span></p> <br /> <br />
-		
-		
-		M - DRAW or DON'T DRAW MERCURY <br>
-		V - DRAW or DON'T DRAW CENUS <br>
-		E - DRAW or DON'T DRAW EARTH <br>
-		M - DRAW or DON'T DRAW MARS <br>
-		J - DRAW or DON'T DRAW JUPITER <br />
-		S - DRAW or DON'T DRAW SATURN 	
-		R - DRAW or DON'T DRAW MOON	
-		
-		<br><br>
-		C - CLEAR IMAGE && RESET TIME <br />
-		D - DRAW ON/OFF<br />
-		
+<div id="wrapper">
+        <div id="levi">
+			<br /><br /><br /><br />
+			<button class="button" id="button_Switch">Switch to GEOCENTRICAL Model</button>	<br /><br />
+			<button class="button" id="button_Centralize">CENTRALIZE VIEW</button><br /><br />
+			<button class="button" id="button_Draw">DRAW LINES</button>  <br /><br />
+			<button class="button" id="button_Clear"">CLEAR LINES</button><br /><br />
+			<button class="button" id="button_StopTime"">PAUSE</button><br /><br />
 
-		
-		
-	</div>
 
-	<div class="wide">
-	
-		<div id="zadej">
-			Belo ozadje <br />
-			Napisi <br />
+			Mercury: <input type="checkbox" id="markMercury" checked="1"><br />
+			Venus:&nbsp;&nbsp; <input type="checkbox" id="markVenus" checked="1"><br />
+			Earth: &nbsp;&nbsp;<input type="checkbox" id="markEarth" checked="1"><br />
+			Mars: &nbsp;&nbsp;&nbsp;<input type="checkbox" id="markMars" checked="1"><br /> 
+			Jupiter: <input type="checkbox" id="markJupiter" checked="0"><br />
+			Sun: &nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" id="markSun" checked="1"><br />
+			Moon: &nbsp;&nbsp;&nbsp;<input type="checkbox" id="markMoon" checked="1"><br /><br />
+			ZOOM:&nbsp; <input type="range" id="sliderSize" min="1" max="500" value="240"><br />
+			SPEED: <input type="range" id="sliderSpeed" min="0" max="300" value="40"><br />
+			LINE:&nbsp; <input type="range" id="sliderLineThickness" min="1" max="5" value="1"><br />
+			
+			<p style="font-size:60	px"><b>Earth Years: </b><span id="earthYears"></span></p> <br /> <br />
+			
+			
+			M - DRAW or DON'T DRAW MERCURY <br>
+			V - DRAW or DON'T DRAW CENUS <br>
+			E - DRAW or DON'T DRAW EARTH <br>
+			M - DRAW or DON'T DRAW MARS <br>
+			J - DRAW or DON'T DRAW JUPITER <br />
+			S - DRAW or DON'T DRAW SATURN 	<br />
+			R - DRAW or DON'T DRAW MOON	
+			
+			<br><br>
+			C - CLEAR IMAGE && RESET TIME <br />
+			D - DRAW ON/OFF<br />
 		</div>
+        
+		<div id="desni">
 		
-		</div id="spredaj">
-			<span id="test1"></span>  
-			<span id="test2"></span>
-			  <canvas id="myCanvas">
-			  </canvas>
+			<div id="zadej">
+				  <canvas id="backgroundCanvas"></canvas>
+			</div>
+			
+			<div id="spredej">
+				  <canvas id="myCanvas"></canvas>
+			</div>
+				  
+			<!-- They are here because I didn't find a nother way for Javascript to load images from file. -->
+			<img id="imgsun" src="sun.png" style="display: none;" />
+			<img id="imgmercury" src="mercury.png" style="display: none;" />
+			<img id="imgvenus" src="venus.png" style="display: none;" />
+			<img id="imgearth" src="earth.png" style="display: none;" />
+			<img id="imgmars" src="mars.png" style="display: none;" />
+			<img id="imgjupiter" src="jupiter.png" style="display: none;" />
+			<img id="imgmoon" src="mercury.png" style="display: none;" />		
+		
 		</div>
-			  
-				<!-- They are here because I didn't find a nother way for Javascript to load images from file. -->
-		<img id="imgsun" src="sun.png" style="display: none;" />
-		<img id="imgmercury" src="mercury.png" style="display: none;" />
-		<img id="imgvenus" src="venus.png" style="display: none;" />
-		<img id="imgearth" src="earth.png" style="display: none;" />
-		<img id="imgmars" src="mars.png" style="display: none;" />
-		<img id="imgjupiter" src="jupiter.png" style="display: none;" />
-		<img id="imgmoon" src="mercury.png" style="display: none;" />
-	</div>
-	
-	
-</div>	
 
+</div>
 
 
 </body>
