@@ -43,7 +43,7 @@ input[type="range"] {
 					-moz-box-sizing: border-box;
 					box-sizing: border-box;
 					border-style: groove;
-					height: 1085px;
+					height: 1087px;
 				  background-color: #FFFAF0;
 
 
@@ -391,8 +391,10 @@ function draw()
 	// Why was this done like this and not with angular frequency?
 	// Because absolute speed doesn't matter. All that matters is the realitve body speed.
 	speedEarth = document.getElementById("sliderSpeed").value/1000;
-	linethickness = Number(document.getElementById("sliderLineThickness").value);
+	document.getElementById("valueSpeed").innerHTML=speedEarth*1000;
 
+	linethickness = Number(document.getElementById("sliderLineThickness").value);
+	document.getElementById("valueLine").innerHTML=linethickness;
 	
 	// SPEEDS
 	var speedMercury=speedEarth/(daysMercury/daysEarth);
@@ -421,12 +423,6 @@ if (timeIncreasing==1) {
 			// FI angle of the EARTH (omega*t) fid is (speed*omega*t)
 			fi+=0.1*dfi;
 			fid = speedEarth*fi;
-
-		
-			document.getElementById("test1").innerHTML="fid "+fid;
-			document.getElementById("test2").innerHTML="FlagEarthy ears: " + flag_earthYears;
-			document.getElementById("test3").innerHTML="FlagEarthYears2: " + flag_earthYears2;
-
 
 				// KEEPING TRACK OF TIME
 					if (drawOn==0) {
@@ -723,7 +719,7 @@ if (timeIncreasing==1) {
 		  // MOON
 		if (document.getElementById("markMoon").checked == '1') {
 		//context.drawImage(imgmoon, posMoonX-planetsize/4, posMoonY-planetsize/4,planetsize/2,planetsize/2);
-				drawPlanet(posMoonX,posMoonY,planetsizeMORTY,"white","gray");		
+				drawPlanet(posMoonX,posMoonY,planetsizeMORTY/2,"white","gray");		
 
 		} 
 		  // MERCURY
@@ -798,17 +794,17 @@ if (timeIncreasing==1) {
 		} 
 		  // MERCURY
 		if (document.getElementById("markMercury").checked == '1') {
-		  context.fillStyle = 'blue';
+		  context.fillStyle = '#FFD500';
 		  context.fillRect(posMercuryX, posMercuryY, linethickness, linethickness);
 		}  
 		  // VENUS
 		if (document.getElementById("markVenus").checked == '1') {
-		  context.fillStyle = 'purple';
+		  context.fillStyle = '#FFFF00';
 		  context.fillRect(posVenusX, posVenusY, linethickness, linethickness);
 		} 
 		  // EARTH
 		if (document.getElementById("markEarth").checked == '1') {
-		  context.fillStyle = 'green';			
+		  context.fillStyle = '#1FF627';			
 		  context.fillRect(posEarthX, posEarthY, linethickness, linethickness);
 		  //	
 		} 
@@ -820,27 +816,28 @@ if (timeIncreasing==1) {
 		} 
 		  // MARS
 		if (document.getElementById("markMars").checked == '1') {
-			context.fillStyle = 'red';
+			context.fillStyle = '#F30000';
 			context.fillRect(posMarsX, posMarsY, linethickness, linethickness);
 		} 
 		  // JUPITER
 		if (document.getElementById("markJupiter").checked == '1') {
-		  context.fillStyle = 'blue';
+		  context.fillStyle = '#FF9933';
 		  context.fillRect(posJupiterX, posJupiterY, linethickness, linethickness);
 		}
 		  // Saturn
 		if (document.getElementById("markSaturn").checked == '1') {
-		  context.fillStyle = 'blue';
+		  context.fillStyle = '#CBB838';
 		  context.fillRect(posSaturnX, posSaturnY, linethickness, linethickness);
+		  context.fillRect(posSaturnX-20,posSaturnY,posSaturnX+20,posSaturnY+1);
 		}
 		  // Uranus
 		if (document.getElementById("markUranus").checked == '1') {
-		  context.fillStyle = 'blue';
+		  context.fillStyle = '#283ECE';
 		  context.fillRect(posUranusX, posUranusY, linethickness, linethickness);
 		}
 		 // Neptune
 		if (document.getElementById("markNeptune").checked == '1') {
-		  context.fillStyle = 'blue';
+		  context.fillStyle = 'purple';
 		  context.fillRect(posNeptuneX, posNeptuneY, linethickness, linethickness);
 		}
 		  // Pluto
@@ -858,16 +855,16 @@ if (timeIncreasing==1) {
 	
 	// SHOW UNITS ON BACKGROUND CNAVA
 		contextbg.clearRect(0,0, contextWidth,contextHeight);
-		contextbg.fillRect(20,20,distWeight,2);		// 110 pixels at the momoent?
-		contextbg.fillRect(20,16,2,10);		// 110 pixels at the momoent?
+		contextbg.fillRect(20,20,distWeight,2);			// 110 pixels at the momoent?
+		contextbg.fillRect(20,16,2,10);					// 110 pixels at the momoent?
 		contextbg.fillRect(20+distWeight,16,2,10);		// 110 pixels at the momoent?
 
 		
-		contextbg.font = "bold 14px Lucida Console";		
+		contextbg.font = "bold 20px Lucida Console";		
 		var postext=20+distWeight;
 
 		contextbg.fillText(" 1 AO ≈ 150.000.000km", postext,24);				// IT's moving, have to put it in a backgroudn canvsa... yet again toa voud that.
-		contextbg.fillText(" Earth Years:"+earthYears, 20,40);				// IT's moving, have to put it in a backgroudn canvsa... yet again toa voud that.
+		contextbg.fillText("Earth Years:"+earthYears, 20,50);				// IT's moving, have to put it in a backgroudn canvsa... yet again toa voud that.
 
 	context.closePath();
 	context.fill();
@@ -877,6 +874,8 @@ if (timeIncreasing==1) {
 	document.getElementById("earthYears").innerHTML = earthYears;  
 	distWeight = Number(document.getElementById("sliderSize").value);
 	document.getElementById("valueSize").innerHTML=distWeight;
+	
+	
 }
 
 function drawPlanet(circlex,circley,circleRadius,color1,color2) {
@@ -958,8 +957,8 @@ function downloadCanvas() {
 			Sun: &nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" id="markSun" checked="1"><br />
 			Moon: &nbsp;&nbsp;&nbsp;<input type="checkbox" id="markMoon" checked="1"><br /><br />
 			ZOOM:&nbsp; <input type="range" id="sliderSize" min="1" max="800" value="240"> <span id="valueSize">AA</span><br />
-			SPEED: <input type="range" id="sliderSpeed" min="0" max="10000" value="400"><br />
-			LINE:&nbsp; <input type="range" id="sliderLineThickness" min="1" max="7" value="3"><br />
+			SPEED: <input type="range" id="sliderSpeed" min="0" max="1000" value="59"><span id="valueSpeed">AA</span><br />
+			LINE:&nbsp; <input type="range" id="sliderLineThickness" min="1" max="7" value="2"><span id="valueLine">AA</span><br />
 			
 			<p style="font-size:60	px"><b>Earth Years: </b><span id="earthYears"></span></p> <br /> <br />
 			
