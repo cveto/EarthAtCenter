@@ -2,7 +2,7 @@
 
 <style>
 
-html *
+body
 {
    font-size: 1em !important;
    color: #000 !important;
@@ -18,16 +18,20 @@ html *
 }
 #parent { /*https://stackoverflow.com/questions/446060/css-two-divs-next-to-each-other*/
   display: flex;
-  padding-left: 60px;
+  padding-left: 10px;
+   border: 3px solid green;
+
+
 }
 #narrow {
   width: 100px;
-  /* Just so it's visible */
+   border: 3px solid red;
+
 }
 #wide {
   flex: 1;
-  /* Grow to rest of container */
-  /* Just so it's visible */
+   border: 3px solid green;
+
 }
 
 </style>
@@ -178,7 +182,7 @@ var linethickness=2;
 
 // FLAGS
 var flag_draw=0;
-
+var canvas;
 
 
 function init()
@@ -211,7 +215,7 @@ function init()
 
   // Loads on page load. Sets upa  canvas and calls function many times per second
   
-  	var canvas = document.getElementById("myCanvas");
+  	    canvas = document.getElementById("myCanvas");
 		canvas.width=canvasWidth;
 		canvas.height=canvasHeight;
 	
@@ -231,7 +235,7 @@ function togglePlanet(body) {
 }
 
 function clear() {
-	context.clearRect(0,0, contextWidth,contextHeight);
+	context.clearRect(0, 0, canvas.width, canvas.height);
 	t=0;
 	fi=0;
 	fiMercury=0;
@@ -458,10 +462,9 @@ function draw()
 
 
 		context.clearRect(0,0, contextWidth,contextHeight);
-		
-		context.fillRect(0,20,distWeight,2);
-		context.font = "bold 12px Lucida Console";		
-		context.fillText(" 1 AO = 150.000.000km", distWeight,24);
+		//context.fillRect(0,20,distWeight,2);
+		//context.font = "bold 12px Lucida Console";		
+		//context.fillText(" 1 AO = 150.000.000km", distWeight,24);				// IT's moving, have to put it in a backgroudn canvsa... yet again toa voud that.
 
 
 		var imgjupiter = document.getElementById("imgjupiter");
@@ -522,7 +525,7 @@ function draw()
 		Jupiter: <input type="checkbox" id="markJupiter" checked="1"><br />
 		Sun: &nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" id="markSun" checked="1"><br />
 		Moon: &nbsp;&nbsp;&nbsp;<input type="checkbox" id="markMoon" checked="1"><br /><br />
-		SIZE:&nbsp; <input type="range" id="sliderSize" min="1" max="500" value="265"><br />
+		SIZE:&nbsp; <input type="range" id="sliderSize" min="1" max="500" value="240"><br />
 		SPEED: <input type="range" id="sliderSpeed" min="0" max="300" value="40"><br />
 		<p style="font-size:60	px"><b>Earth Years: </b><span id="earthYears"></span></p> <br /> <br />
 		
@@ -545,10 +548,18 @@ function draw()
 	</div>
 
 	<div class="wide">
-				<span id="test1"></span>  
+	
+		<div id="zadej">
+			Belo ozadje <br />
+			Napisi <br />
+		</div>
+		
+		</div id="spredaj">
+			<span id="test1"></span>  
 			<span id="test2"></span>
 			  <canvas id="myCanvas">
 			  </canvas>
+		</div>
 			  
 				<!-- They are here because I didn't find a nother way for Javascript to load images from file. -->
 		<img id="imgsun" src="sun.png" style="display: none;" />
