@@ -45,8 +45,6 @@ input[type="range"] {
 					border-style: groove;
 					height: 1087px;
 				  background-color: #FFFAF0;
-
-
 			}
 
 			#desni {
@@ -62,7 +60,7 @@ input[type="range"] {
 			}
 
 				#zadej {
-				  width: 1920px;
+				  /* width: 1920px; */
 				  height: 1080px;
 				  position: absolute;
 				  top: 0;
@@ -70,7 +68,7 @@ input[type="range"] {
 				  background-color: #FFFEE1	       ;
 				}
 				#spredej {
-				  width: 1920px;
+				  /* width: 1920px; */  /*THIS BREAKS THEM ON TWO FRO SOME RSASON*/
 				  height: 1080px;
 				  position: absolute;
 				  top: 0;
@@ -231,7 +229,7 @@ var posMoonY;
 
 // Speed of going around the sun
 var speedEarth; 			// max 1
-var drawInterval=40;			// 40 is 25 frames per second
+var drawInterval=300;			// 40 is 25 frames per second
 
 // Poolar coordinate of the planetary body (used to derivate it to cartesian)
 // fi goes from -3.14 to +3.14 radians
@@ -267,6 +265,9 @@ var stikalo=0;			// Button is OFF
 var earthYears=0;	
 var pause = 1;
 var linethickness=2;	// default, will be rewritten
+
+var planetsizeMORTY=20;
+var frameCounter=0;
 
 // FLAGS
 var flag_draw=0;
@@ -353,7 +354,7 @@ function togglePlanet(body) {
 function clear() {
 	context.translate(0,0);				// So it clear from the actual zero
 	contextbg.translate(0,0);
-	context.clearRect(0, 0, canvas.width*2, canvas.height*2);
+	context.clearRect(-3000, -3000, 3000, 3000);			// CLEAR FUCKER!
 	context.clearRect(0, 0, canvas.width*2, canvas.height*2);
 
 	t=0;
@@ -368,6 +369,19 @@ function clear() {
 	fiPluto=0;
 	fiMoon=0;
 	earthYears=0;
+	fid=0;
+	fidMercury=0;
+	fidVenus=0;
+	fidMars=0;
+	fidJupiter=0;
+	fidSaturn=0;
+	fidUranus=0;
+	fidNeptune=0;
+	fidPluto=0;
+	fidMoon=0;
+	
+	fid=0;
+	frameCounter=0;
 }
 
 
@@ -387,6 +401,12 @@ function toggleDraw() {
 
 function draw()
 {
+	if (timeIncreasing == 1) {
+		frameCounter+=1;
+	}
+	
+	document.getElementById("frameCounter").innerHTML=frameCounter;
+	
 	// SPEEDS OF PLANETS REALTIVE TO EARTH
 	// Why was this done like this and not with angular frequency?
 	// Because absolute speed doesn't matter. All that matters is the realitve body speed.
@@ -671,11 +691,14 @@ if (timeIncreasing==1) {
 	if (drawOn==0) {
 		drawOn = 1;
 		earthYears=0;		// RESET TIMER
+		frameCounter=0;
 		document.getElementById("button_Draw").innerHTML = "DRAW OFF";
 	} else if (drawOn==1) {
 		drawOn = 0;
 		earthYears=0;		// RESET TIMER
 		document.getElementById("button_Draw").innerHTML = "DRAW ON";
+		frameCounter=0;
+
 	}
   };
   
@@ -701,15 +724,15 @@ if (timeIncreasing==1) {
 		
 	// PUTS PLANTES ON THE CANVAS
 	// DRAW lines if DRAW is ON, then stop showing images
-	
-	
+
 	if (drawOn==0) {	
 		flag_draw=0;	
-		var planetsizeMORTY=20;
+
 	// START DRAWING		// ON BACKGROUND CANVAS
 
 		context.translate(0,0)
 		context.clearRect(0,0, contextWidth,contextHeight);
+		
 		  // SUN
 		if (document.getElementById("markSun").checked == '1') {
 			//context.drawImage(imgsun, posSunX-planetsize/2, posSunY-planetsize/2,planetsize,planetsize)
@@ -791,6 +814,13 @@ if (timeIncreasing==1) {
 		if (document.getElementById("markSun").checked == '1') {
 		  context.fillStyle = 'orange';
 		  context.fillRect(posSunX, posSunY, linethickness, linethickness);
+		  
+		  // ALSO DRAW SUN IF THE VIEW ID HELIOCENTRICAL
+		  if (stikalo==0) {
+		  		drawPlanet(posSunX,posSunY,planetsizeMORTY,"yellow","orange");	
+		  }
+		  
+		  
 		} 
 		  // MERCURY
 		if (document.getElementById("markMercury").checked == '1') {
@@ -845,13 +875,34 @@ if (timeIncreasing==1) {
 		  context.fillStyle = 'blue';
 		  context.fillRect(posPlutoX, posPlutoY, linethickness, linethickness);
 		}
-
 				
 		// MILLIONS OF FRAMES
-		if (document.getElementById("range_downloadFrames").value==1) {	
-			downloadCanvas();
+		if (document.getElementById("range_downloadFrames").value==1 && timeIncreasing==1) {	
+			var howmany=Number(document.getElementById("HowManyFrames").value);
+			var fromFrame=Number(document.getElementById("FromFrame").value);
+			var filename="Slika"+frameCounter;
+				// ONLY DOWNLAD THAT MANY
+				
+
+				if (frameCounter <= howmany) {
+					if (frameCounter >= fromFrame) {
+					downloadCanvas(filename);
+					}
+				} else {		// STOP SIMULATION
+					timeIncreasing=0;
+					document.getElementById("range_downloadFrames").value=0;
+				}
+			
+			
 		}
+		
+		
+	
+
+		
+		
 	}
+	
 	
 	// SHOW UNITS ON BACKGROUND CNAVA
 		contextbg.clearRect(0,0, contextWidth,contextHeight);
@@ -865,6 +916,7 @@ if (timeIncreasing==1) {
 
 		contextbg.fillText(" 1 AO ≈ 150.000.000km", postext,24);				// IT's moving, have to put it in a backgroudn canvsa... yet again toa voud that.
 		contextbg.fillText("Earth Years:"+earthYears, 20,50);				// IT's moving, have to put it in a backgroudn canvsa... yet again toa voud that.
+		contextbg.fillText("https://github.com/cveto/EarthAtCenter", 20,1060);				// IT's moving, have to put it in a backgroudn canvsa... yet again toa voud that.
 
 	context.closePath();
 	context.fill();
@@ -889,7 +941,7 @@ function drawPlanet(circlex,circley,circleRadius,color1,color2) {
 }
 
 // DOWNLOAD CANVASES - merges 3 canvases, white, backgroudn and front to one.
-function downloadCanvas() {
+function downloadCanvas(filename) {
 	// Copyright to this guy?
 	// https://stackoverflow.com/questions/29551841/merge-multiple-canvases-and-download-as-image
 	// https://stackoverflow.com/questions/11112321/how-to-save-canvas-as-png-image
@@ -914,7 +966,7 @@ function downloadCanvas() {
   var dataURL = whiteCanvas.toDataURL("image/png");
   var link = document.createElement('a');
   
-  link.download = "PLANETS.png";
+  link.download = filename+".png";
   link.href = whiteCanvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
   link.click();
 }
@@ -935,7 +987,7 @@ function downloadCanvas() {
 			<button class="button" id="button_Switch">Switch to GEOCENTRICAL Model</button>	<br /><br />
 			<button class="button" id="button_Centralize">CENTRALIZE VIEW</button><br /><br />
 			<button class="button" id="button_Draw">DRAW LINES</button>  <br /><br />
-			<button class="button" id="button_Clear"">CLEAR LINES</button><br /><br />
+			<button class="button" id="button_Clear"">RESET</button><br /><br />
 			<button class="button" id="button_StopTime"">PAUSE</button><br /><br />
 			<button class="button" id="button_NormalizeZoom"">NormalizeZoom</button><br /><br />
 
@@ -947,9 +999,9 @@ function downloadCanvas() {
 			Jupiter: <input type="checkbox" id="markJupiter" checked="0"><br />
 
 
-			Saturn:&nbsp;&nbsp; <input type="checkbox" id="markSaturn" checked="1"><br />
-			Uranus:&nbsp;&nbsp; <input type="checkbox" id="markUranus" checked="1"><br />
-			Neptune:&nbsp;&nbsp; <input type="checkbox" id="markNeptune" checked="1"><br />
+			Saturn: &nbsp;<input type="checkbox" id="markSaturn" checked="1"><br />
+			Uranus: &nbsp;<input type="checkbox" id="markUranus" checked="1"><br />
+			Neptune: <input type="checkbox" id="markNeptune" checked="1"><br />
 			Pluto:&nbsp;&nbsp; <input type="checkbox" id="markPluto" checked="1"><br />
 
 			
@@ -975,8 +1027,14 @@ function downloadCanvas() {
 			C - CLEAR IMAGE && RESET TIME <br />
 			D - DRAW ON/OFF<br /><br />
 			
-			<input type="range" id="range_downloadFrames" min="0" max="1" value="0"> DOWNLOAD FRAMES </input>
-			<div align="center"><a class="example_d" rel="nofollow noopener" onclick="downloadCanvas()">  IZVOZI EN PNG </a></div>				
+		<input type="range" id="range_downloadFrames" min="0" max="1" value="0"> DOWNLOAD FRAMES </input> <br/>
+		FROM:<input type="text" id="FromFrame" size="3"></input>
+		TO:<input type="text" id="HowManyFrames" size="3"></input>
+
+
+<!-- 			<div align="center"><a class="example_d" rel="nofollow noopener" onclick="downloadCanvas()">  IZVOZI EN PNG </a></div>	 -->
+
+		<p id="frameCounter">0</p>
 
 		</div>
         
