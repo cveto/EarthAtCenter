@@ -229,7 +229,7 @@ var posMoonY;
 
 // Speed of going around the sun
 var speedEarth; 			// max 1
-var drawInterval=300;			// 40 is 25 frames per second
+var drawInterval=20;			// 40 is 25 frames per second..  300 works saving 1920 1080 with mozilla.. will try 4K..
 
 // Poolar coordinate of the planetary body (used to derivate it to cartesian)
 // fi goes from -3.14 to +3.14 radians
@@ -266,7 +266,7 @@ var earthYears=0;
 var pause = 1;
 var linethickness=2;	// default, will be rewritten
 
-var planetsizeMORTY=20;
+var planetsizeMORTY=15;
 var frameCounter=0;
 
 // FLAGS
@@ -276,32 +276,32 @@ var fidold2=0;
 var flag_earthYears=0;		// MY WEBSITE LOADS IN THE VIEW OF VISIBLE PLANETS
 var flag_earthYears2=1;
 
-function init()
-{
+// LOADS WITH HTML ONCE
+function init() {
 
 
-	// IF HOLDING DOWN A KEY ON KEYBOARD
-	document.body.onkeydown = function(e){
-		if (e.keyCode == 68){									// D
-				toggleDraw();
-		} else if (e.keyCode == 76){							// M
-				togglePlanet("markMercury");
-		} else if (e.keyCode == 86){							// V
-				togglePlanet("markVenus");
-		} else if (e.keyCode == 69){							// E
-				togglePlanet("markEarth");
-		} else if (e.keyCode == 77){							// M
-				togglePlanet("markMars");
-		} else if (e.keyCode == 74){							// J
-				togglePlanet("markJupiter");
-		} else if (e.keyCode == 83){							// S
-				togglePlanet("markSaturn");
-		} else if (e.keyCode == 82){							// R for RockMoon
-				togglePlanet("markMoon");
-		}else if (e.keyCode == 67){							// R for RockMoon
-				clear();
-		}
-	}	
+//	// IF HOLDING DOWN A KEY ON KEYBOARD
+//	document.body.onkeydown = function(e){
+//		if (e.keyCode == 68){									// D
+//				toggleDraw();
+//		} else if (e.keyCode == 76){							// M
+//				togglePlanet("markMercury");
+//		} else if (e.keyCode == 86){							// V
+//				togglePlanet("markVenus");
+//		} else if (e.keyCode == 69){							// E
+//				togglePlanet("markEarth");
+//		} else if (e.keyCode == 77){							// M
+//				togglePlanet("markMars");
+//		} else if (e.keyCode == 74){							// J
+//				togglePlanet("markJupiter");
+//		} else if (e.keyCode == 83){							// S
+//				togglePlanet("markSaturn");
+//		} else if (e.keyCode == 82){							// R for RockMoon
+//				togglePlanet("markMoon");
+//		}else if (e.keyCode == 67){							// R for RockMoon
+//				clear();
+//		}
+//	}	
 	
 	// UNCHECK ALL TICKBOXES
 	document.getElementById("markMercury").checked=0;
@@ -316,6 +316,7 @@ function init()
 	
 	document.getElementById("markMoon").checked=1;
 	document.getElementById("markSun").checked=1;
+	document.getElementById("range_downloadFrames").value=0;
 
 
 
@@ -342,15 +343,556 @@ function init()
  
 }
 
+// MAIN FUNCTION
+function draw() {
+	// -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	// AM I ON PAUSE?
+		if (timeIncreasing == 1) {
+			frameCounter+=1;
+		}
+	
+	document.getElementById("frameCounter").innerHTML=frameCounter;
+	
+	// -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+	
+	// GET DATA FROM USER
+		// Line thickness
+		linethickness = Number(document.getElementById("sliderLineThickness").value);
+		document.getElementById("valueLine").innerHTML=linethickness;
+	
+	// SPEEDS OF PLANETS REALTIVE TO EARTH
+		// Why was this done like this and not with angular frequency?
+		// Because absolute speed doesn't matter. All that matters is the realitve body speed.
+		speedEarth = document.getElementById("sliderSpeed").value/1000;
+		document.getElementById("valueSpeed").innerHTML=speedEarth*1000;
+		
+	// PICTURES FOR PLANETS
+		var imgmercury = document.getElementById("imgmercury");
+		var imgvenus = document.getElementById("imgvenus");
+		var imgearth = document.getElementById("imgearth");
+		var imgmars = document.getElementById("imgmars");
+		var imgjupiter = document.getElementById("imgjupiter");
+		var imgsun = document.getElementById("imgsun");
+		var imgmoon = document.getElementById("imgmoon");
 
-function togglePlanet(body) {
-	if (document.getElementById(body).checked==0) {
-		document.getElementById(body).checked=1;
-	} else {
-		document.getElementById(body).checked=0;
+	// -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+	
+	// CALCULATE PLANET ROTATION SPEED - maybe we move that in the init, this is static.
+	// SPEEDS
+		var speedMercury=speedEarth/(daysMercury/daysEarth);
+		var speedVenus=speedEarth/(daysVenus/daysEarth);
+		var speedMars=speedEarth/(daysMars/daysEarth);
+		var speedJupiter=speedEarth/(daysJupiter/daysEarth);
+		var speedSaturn=speedEarth/(daysSaturn/daysEarth);
+		var speedUranus=speedEarth/(daysUranus/daysEarth);
+		var speedNeptune=speedEarth/(daysNeptune/daysEarth);
+		var speedPluto=speedEarth/(daysPluto/daysEarth);
+		var speedMoon=speedEarth/(daysMoon/daysEarth);
+		
+	// -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+	
+	// ANIMATION
+	// THIS MAKES THEM TICK.  
+	if (timeIncreasing==1) {
+
+	 	// FI angle of the EARTH (omega*t) fid is (speed*omega*t)
+	 	fi+=0.1*dfi;
+	 	fid = speedEarth*fi;
+	 
+	 	// KEEPING TRACK OF TIME - this is to remember at what position draw on of was clicked  - so it only counts years from that angle.
+		//	WORKS FOR ANY ANGLE EXCEPT 0.. for that the logic is down below
+	 		if (drawOn==0) {
+	 			// I AM NOT IN DRAW MODE
+	 			fidold=fid;
+	 			flag_earthYears=0;			// DONT COUINT
+	 		}
+	 		if (fid < fidold) {		// He must have gone throug 0 already - count next one
+	 			flag_earthYears=1;
+	 		}
+	 
+	 		if (fid>fidold && flag_earthYears==1) {
+	 			// A year has pased since we started drawing
+	 			flag_earthYears=0;
+	 			earthYears+=1;					// THIS NEEDS TO BE SMARTER
+	 		} 
+	 		
+	 		
+	 		// KEEPING TRACK OF TIME 2
+	 		if (drawOn==1) {
+	 			// I AM NOT IN DRAW MODE
+	 			fidold2=fid;
+	 			flag_earthYears2=0;			// DONT COUINT
+	 		}
+	 		if (fid < fidold2) {		
+	 			flag_earthYears2=1;
+	 		}
+	 
+	 		if (fid>fidold2 && flag_earthYears2==1 && fidold2 != 0) {		// He shouldn't be zero... bechaoe.
+	 			// A year has pased since we started drawing
+	 			flag_earthYears2=0;
+	 			earthYears+=1;					// THIS NEEDS TO BE SMARTER
+	 		} 
+	 	
+	 
+	 	
+	 // CYCLICAL ANGLES - FOR ALL PLANETS
+	 	if (fid > Math.PI*2) {
+	 		fi = 0;
+	 		flag_earthYears=1;
+	 		
+			// KEEPING TRACK ON TIME IF ANGLE IS 0.
+	 		if (fidold2==0 || fidold==0) {
+	 			earthYears+=1;
+	 		}
+	 	}
+	 	fi+=0.1*dfi;
+	 
+	 	
+	 	// MERCURY phi
+	 	fiMercury+=0.1*dfi;
+	 	fidMercury = speedMercury*fiMercury;
+	 	if (fidMercury > Math.PI*2) {
+	 		fiMercury = 0;
+	 	}
+	 	fiMercury+=0.1*dfi;
+	 
+	 	// VENUS phi
+	 	fiVenus+=0.1*dfi;
+	 	fidVenus = speedVenus*fiVenus;
+	 	if (fidVenus > Math.PI*2) {
+	 		fiVenus = 0;
+	 	}
+	 	fiVenus+=0.1*dfi;
+	 
+	 	// MARS phi
+	 	fiMars+=0.1*dfi;
+	 	fidMars = speedMars*fiMars;
+	 	if (fidMars > Math.PI*2) {
+	 		fiMars = 0;
+	 	}
+	 	fiMars+=0.1*dfi;
+	 
+	 	// JUPITER phi
+	 	fiJupiter+=0.1*dfi;
+	 	fidJupiter = speedJupiter*fiJupiter;
+	 	if (fidJupiter > Math.PI*2) {
+	 		fiJupiter = 0;
+	 	}
+	 	fiJupiter+=0.1*dfi;	
+	 
+	 	// Saturn phi
+	 	fiSaturn+=0.1*dfi;
+	 	fidSaturn = speedSaturn*fiSaturn;
+	 	if (fidSaturn > Math.PI*2) {
+	 		fiSaturn = 0;
+	 	}
+	 	fiSaturn+=0.1*dfi;				
+	 	
+	 	// Uranus phi
+	 	fiUranus+=0.1*dfi;
+	 	fidUranus = speedUranus*fiUranus;
+	 	if (fidUranus > Math.PI*2) {
+	 		fiUranus = 0;
+	 	}
+	 	fiUranus+=0.1*dfi;				
+	 
+	 	// Neptune phi
+	 	fiNeptune+=0.1*dfi;
+	 	fidNeptune = speedNeptune*fiNeptune;
+	 	if (fidNeptune > Math.PI*2) {
+	 		fiNeptune = 0;
+	 	}
+	 	fiNeptune+=0.1*dfi;				
+	 	
+	 	// Pluto phi
+	 	fiPluto+=0.1*dfi;
+	 	fidPluto = speedPluto*fiPluto;
+	 	if (fidPluto > Math.PI*2) {
+	 		fiPluto = 0;
+	 	}
+	 	fiPluto+=0.1*dfi;				
+	 	
+	 	// Testing
+	 	// Moon phi
+	 	fiMoon+=0.1*dfi;
+	 	fidMoon = speedMoon*fiMoon;
+	 	if (fidMoon > Math.PI*2) {
+	 		fiMoon = 0;
+	 	}
+	 	fiMoon+=0.1*dfi;	
 	}
+	
+    // Save old coordinates of Earth for Geocentric model 
+		// Why? So I know how to move the coordinate system to put Earth always to the center
+		posEarthOLDx=posEarthX;
+		posEarthOLDy=posEarthY;
+	
+	// COORDINATES OF EARTH
+		posEarthX = posSunX+linear_e_Earth+distWeight*amplitudeXEarth*Math.cos(fid);
+		posEarthY = posSunY+distWeight*amplitudeYEarth*Math.sin(fid);
+	
+	// BUTTON TO PUT EARTH TO CENTER (Resets coordinates).. why does it also work for the sun?
+		button_Centralize.onclick = function(event) {
+		posEarthX=posCenterX;
+		posEarthY=posCenterY;
+		context.setTransform(1, 0, 0, 1, 0, 0);			// Resets the canvas
+		};
+
+	// BUTTON TO ZOOM OUT SO PLANET TRAJECTORY FITS THE SCREEN WHEN EARTH IS AT ITS CENTRE. ORDER MATTERS
+		var furthestPlanetfromEarth;
+		button_NormalizeZoom.onclick = function(event) {
+		
+		// Check every one by size - from furthest to least further
+		if (document.getElementById("markPluto").checked==1) {
+			furthestPlanetfromEarth=aphelionEarth+aphelionPluto;
+			
+		} else if (document.getElementById("markNeptune").checked==1) {
+			furthestPlanetfromEarth=aphelionEarth+aphelionNeptune;
+			
+		} else if (document.getElementById("markUranus").checked==1) {
+			furthestPlanetfromEarth=aphelionEarth+aphelionUranus;
+			
+		} else if (document.getElementById("markSaturn").checked==1) {
+			furthestPlanetfromEarth=aphelionEarth+aphelionSaturn;
+			
+		} else if (document.getElementById("markJupiter").checked==1) {
+			furthestPlanetfromEarth=aphelionEarth+aphelionJupiter;
+			
+		} else if (document.getElementById("markMars").checked==1) {
+			furthestPlanetfromEarth=aphelionEarth+aphelionMars;
+			
+		}  else if (document.getElementById("markVenus").checked==1) {
+			furthestPlanetfromEarth=aphelionEarth+aphelionVenus;
+			
+		} else if (document.getElementById("markMercury").checked==1) {
+			furthestPlanetfromEarth=aphelionEarth+aphelionMercury;
+			
+		} else if (document.getElementById("markEarth").checked==1) {
+			furthestPlanetfromEarth=aphelionEarth;
+		}
+		
+		distWeight=(canvasHeight*0.42)/furthestPlanetfromEarth;				// Maxium distance from the center (the earth) to the edge (FULL HAD 1080pixeld halfed) should be distance from earth to planet which is earth - sun + sun - aphelion planet
+		document.getElementById("sliderSize").value=distWeight;
+    };
+	
+	
+	
+	// Toggle between Geocentrical and Heliocentrical model - for EARTH only.. obviusly
+		if (stikalo == 1) {
+			trnx=posEarthOLDx-posEarthX;
+			trny=posEarthOLDy-posEarthY; 
+			context.translate(trnx, trny);			// THIS IS WHERE THE CONTEXT TRANSLATES; AAAA
+			
+			// Had some radnom offset without rounding - even floor doesnt work..even this isn't the best
+			trnx=Math.round(trnx*100)/100;
+			trny=Math.round(trny*100)/100;
+			
+			document.getElementById("button_Switch").innerHTML = "Switch to HELIOCENTRICAL model";
+		} else {
+			document.getElementById("button_Switch").innerHTML = "Switch to GEOCENTRICAL model";
+		}
+
+
+	// COORDINATES CALCULATRION
+	// -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+			// COORDINATES OF THE MOON
+			posMoonX = posEarthX+20*Math.cos(fidMoon);
+			posMoonY = posEarthY+20*Math.sin(fidMoon);
+			
+			// COORDINATES of Mercury
+			posMercuryX = posSunX+linear_e_Mercury+distWeight*amplitudeXMercury*Math.cos(fidMercury);
+			posMercuryY = posSunY+distWeight*amplitudeYMercury*Math.sin(fidMercury);
+			
+			// COORDINATES of Venus
+			posVenusX = posSunX+linear_e_Venus+distWeight*amplitudeXVenus*Math.cos(fidVenus);
+			posVenusY = posSunY+distWeight*amplitudeYVenus*Math.sin(fidVenus);
+
+			// COORDINATES of Mars	
+			posMarsX = posSunX+linear_e_Mars+distWeight*amplitudeXMars*Math.cos(fidMars);
+			posMarsY = posSunY+distWeight*amplitudeYMars*Math.sin(fidMars);
+
+			// COORDINATES of Jupiter
+			posJupiterX = posSunX+linear_e_Jupiter+distWeight*amplitudeXJupiter*Math.cos(fidJupiter);
+			posJupiterY = posSunY+distWeight*amplitudeYJupiter*Math.sin(fidJupiter);
+
+			// COORDINATES of Saturn
+			posSaturnX = posSunX+linear_e_Saturn+distWeight*amplitudeXSaturn*Math.cos(fidSaturn);
+			posSaturnY = posSunY+distWeight*amplitudeYSaturn*Math.sin(fidSaturn);
+			
+			// COORDINATES of Uranus
+			posUranusX = posSunX+linear_e_Uranus+distWeight*amplitudeXUranus*Math.cos(fidUranus);
+			posUranusY = posSunY+distWeight*amplitudeYUranus*Math.sin(fidUranus);
+			
+			// COORDINATES of Neptune
+			posNeptuneX = posSunX+linear_e_Neptune+distWeight*amplitudeXNeptune*Math.cos(fidNeptune);
+			posNeptuneY = posSunY+distWeight*amplitudeYNeptune*Math.sin(fidNeptune);
+			
+			// COORDINATES of Pluto
+			posPlutoX = posSunX+linear_e_Pluto+distWeight*amplitudeXPluto*Math.cos(fidPluto);
+			posPlutoY = posSunY+distWeight*amplitudeYPluto*Math.sin(fidPluto);
+
+
+	// -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	// BUTTONS WHAT DO THEY DO?
+		  // TOGGLE BUTTON - between HELIOCENTRICAL or GEOCENTRICAL model
+		  button_Switch.onclick = function(event) {
+			if (stikalo==0) {
+				stikalo = 1;
+			} else if (stikalo==1) {
+				stikalo = 0;
+			}
+		  };
+			
+		// TOGGLE BUTTON - DRAW ON or OFF        ON CLICK
+		  button_Draw.onclick = function(event) {
+			if (drawOn==0) {
+				drawOn = 1;
+				earthYears=0;		// RESET TIMER
+				frameCounter=0;
+				document.getElementById("button_Draw").innerHTML = "DRAW OFF";
+			} else if (drawOn==1) {
+				drawOn = 0;
+				earthYears=0;		// RESET TIMER
+				document.getElementById("button_Draw").innerHTML = "DRAW ON";
+				frameCounter=0;
+			}
+		  };
+		
+		// BUTTON TO CLEAR SCREEN
+		button_Clear.onclick = function(event) {
+			clear();
+		};
+
+		// BUTTON TO STOP TIME
+		button_StopTime.onclick = function(event) {
+			if (timeIncreasing==0) {
+				timeIncreasing=1;
+				document.getElementById("button_StopTime").innerHTML = "PAUSE";
+			} else if (timeIncreasing==1) {
+				timeIncreasing = 0;
+				document.getElementById("button_StopTime").innerHTML = "RESUME";
+			}
+		};
+			
+	// -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	//  PUT THINGS ON CANVASES THERE ARE 2 -- HERE is where I tell javascript to actually put anything on the canvas
+		var planetsize=30			// ONLY FOR IMAGES
+		context.beginPath();
+		
+	// PUTS IMAGES OF PLANETS OR BIG CIRCLES ON THE CANVAS (WHICH CANVAS DEPENDS ON IF DRAW IS ON OR OFF::)
+	// DRAW lines if DRAW is ON, then stop showing images
+
+	// IF CANVAS IS PERSISTENT - draw on canvas that is persistent
+		if (drawOn==0) {	
+			flag_draw=0;	
+
+		// START DRAWING		// ON BACKGROUND CANVAS
+			context.translate(0,0)
+			context.clearRect(0,0, contextWidth,contextHeight);
+			
+			// SUN
+			if (document.getElementById("markSun").checked == '1') {
+				//context.drawImage(imgsun, posSunX-planetsize/2, posSunY-planetsize/2,planetsize,planetsize)
+					drawPlanet(posSunX,posSunY,20,"yellow","orange");		
+
+			} 
+			// MOON
+			if (document.getElementById("markMoon").checked == '1') {
+			//context.drawImage(imgmoon, posMoonX-planetsize/4, posMoonY-planetsize/4,planetsize/2,planetsize/2);
+					drawPlanet(posMoonX,posMoonY,10,"white","gray");		
+
+			} 
+			// MERCURY
+			if (document.getElementById("markMercury").checked == '1') {
+			//context.drawImage(imgmercury, posMercuryX-planetsize/2, posMercuryY-planetsize/2,planetsize,planetsize);
+				drawPlanet(posMercuryX,posMercuryY,planetsizeMORTY,"yellow","white");		
+			
+			}  
+			// VENUS
+			if (document.getElementById("markVenus").checked == '1') {
+			//context.drawImage(imgvenus, posVenusX-planetsize/2, posVenusY-planetsize/2,planetsize,planetsize);
+			drawPlanet(posVenusX,posVenusY,planetsizeMORTY,"orange","brown");	
+			} 
+			
+			// EARTH
+			if (document.getElementById("markEarth").checked == '1') {
+			//context.drawImage(imgearth, posEarthX-planetsize/2, posEarthY-planetsize/2,planetsize,planetsize);
+				drawPlanet(posEarthX,posEarthY,planetsizeMORTY,"green","blue");		
+			} 
+			  
+			// MARS
+			if (document.getElementById("markMars").checked == '1') {
+			//context.drawImage(imgmars, posMarsX-planetsize/2, posMarsY-planetsize/2,planetsize,planetsize);
+				drawPlanet(posMarsX,posMarsY,planetsizeMORTY,"orange","red");		
+			} 
+			
+			// JUPITER
+			if (document.getElementById("markJupiter").checked == '1') {
+			//context.drawImage(imgjupiter, posJupiterX-planetsize/2, posJupiterY-planetsize/2,planetsize,planetsize);
+			drawPlanet(posJupiterX,posJupiterY,planetsizeMORTY,"brown","#ffd9b3");	
+			}
+			
+			// Saturn
+			if (document.getElementById("markSaturn").checked == '1') {
+			//context.drawImage(imgSaturn, posSaturnX-planetsize/2, posSaturnY-planetsize/2,planetsize,planetsize);
+			drawPlanet(posSaturnX,posSaturnY,planetsizeMORTY,"gray","#fff2e6");	
+			} 
+			
+			// Uranus
+			if (document.getElementById("markUranus").checked == '1') {
+			//context.drawImage(imgUranus, posUranusX-planetsize/2, posUranusY-planetsize/2,planetsize,planetsize);
+			drawPlanet(posUranusX,posUranusY,planetsizeMORTY,"blue","#b3b3ff");	
+			}
+			
+			// Neptune
+			if (document.getElementById("markNeptune").checked == '1') {
+			//context.drawImage(imgNeptune, posNeptuneX-planetsize/2, posNeptuneY-planetsize/2,planetsize,planetsize);
+			drawPlanet(posNeptuneX,posNeptuneY,planetsizeMORTY,"#0000e6","#e6ccff");	
+			}
+			
+			// Pluto
+			if (document.getElementById("markPluto").checked == '1') {
+			//context.drawImage(imgPluto, posPlutoX-planetsize/2, posPlutoY-planetsize/2,planetsize,planetsize);
+			drawPlanet(posPlutoX,posPlutoY,planetsizeMORTY,"yellow","#cce6ff");	
+			}
+
+	// IF DRAW IS OFF - CLEAR SCREEN EACH TIME
+	} else {		// DRAW IS OFF - show planets
+		
+		// CLEAR ONLY ONCE
+		if (flag_draw==0) {
+			clear();
+			flag_draw=1;	
+		}
+
+		// WHICH PLANET?
+		  // SUN
+			if (document.getElementById("markSun").checked == '1') {
+			  context.fillStyle = 'orange';
+			  context.fillRect(posSunX, posSunY, linethickness, linethickness);
+			  
+			  // PUT THE BIG PLANET IN THE OTHER CANVAS 
+			  if (stikalo==0) {
+					drawPlanet(posSunX,posSunY,planetsizeMORTY,"yellow","orange");	
+			  }
+		} 
+		
+		// MERCURY
+		if (document.getElementById("markMercury").checked == '1') {
+		  context.fillStyle = '#FFD500';
+		  context.fillRect(posMercuryX, posMercuryY, linethickness, linethickness);
+		}  
+		
+		
+		// VENUS
+		if (document.getElementById("markVenus").checked == '1') {
+		  context.fillStyle = 'purple';
+		  //context.fillRect(posVenusX, posVenusY, linethickness, linethickness);
+		  context.fillRect(posVenusX, posVenusY, linethickness, linethickness);
+			context.arc(posVenusX, posVenusY, 3, 0, 2 * Math.PI);
+		} 
+		
+		// EARTH
+		if (document.getElementById("markEarth").checked == '1') {
+		  context.fillStyle = '#1FF627';			
+		  context.fillRect(posEarthX, posEarthY, linethickness, linethickness);
+		  	
+			// DRAW EARTH IF IT?S IN THE CENTRE
+			if (stikalo==1) {
+		  			drawPlanet(posEarthX,posEarthY,planetsizeMORTY,"green","blue");		
+			}
+		} 
+		 
+		// MOON
+		if (document.getElementById("markMoon").checked == '1') {
+		  context.fillStyle = 'black';
+		  context.fillRect(posMoonX, posMoonY, linethickness, linethickness);
+		} 
+		
+		// MARS
+		if (document.getElementById("markMars").checked == '1') {
+			context.fillStyle = '#F30000';
+			context.fillRect(posMarsX, posMarsY, linethickness, linethickness);
+		} 
+		
+		// JUPITER
+		if (document.getElementById("markJupiter").checked == '1') {
+		  context.fillStyle = '#FF9933';
+		  context.fillRect(posJupiterX, posJupiterY, linethickness, linethickness);
+		}
+		
+		// Saturn
+		if (document.getElementById("markSaturn").checked == '1') {
+		  context.fillStyle = '#CBB838';
+		  context.fillRect(posSaturnX, posSaturnY, linethickness, linethickness);
+		  context.fillRect(posSaturnX-20,posSaturnY,posSaturnX+20,posSaturnY+1);
+		}
+		
+		// Uranus
+		if (document.getElementById("markUranus").checked == '1') {
+		  context.fillStyle = '#283ECE';
+		  context.fillRect(posUranusX, posUranusY, linethickness, linethickness);
+		}
+		
+		// Neptune
+		if (document.getElementById("markNeptune").checked == '1') {
+		  context.fillStyle = 'purple';
+		  context.fillRect(posNeptuneX, posNeptuneY, linethickness, linethickness);
+		}
+		
+		// Pluto
+		if (document.getElementById("markPluto").checked == '1') {
+		  context.fillStyle = 'blue';
+		  context.fillRect(posPlutoX, posPlutoY, linethickness, linethickness);
+		}
+	}
+
+	// -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	// EXPORT TO PNG - NOT ONE; EVERY FRAME - BUT SMARTLY - DEFINE FROM WHICH FRAME TO WHICH FRAME AND IF AT ALL AND ONLY IF PLAYED
+	// HUNDREDS OF FRAMES - SAVE THEM TO PNG
+		if (document.getElementById("range_downloadFrames").value==1 && timeIncreasing==1) {	
+			var howmany=Number(document.getElementById("HowManyFrames").value);
+			var fromFrame=Number(document.getElementById("FromFrame").value);
+		
+			var filename=document.getElementById("filename").value;
+			var filename=filename+frameCounter;
+
+			// ONLY DOWNLAD THAT MANY
+				
+
+			if (frameCounter <= howmany) {
+				if (frameCounter >= fromFrame) {
+				downloadCanvas(filename);
+				}
+			} else {		// STOP SIMULATION WHEN DONE
+				timeIncreasing=0;
+				document.getElementById("range_downloadFrames").value=0;
+			}
+		}
+		
+	// -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	// SHOW UNITS ON BACKGROUND CNAVA
+		contextbg.clearRect(0,0, contextWidth,contextHeight);
+		contextbg.fillRect(20,20,distWeight,2);			// 110 pixels at the momoent?
+		contextbg.fillRect(20,16,2,10);					// 110 pixels at the momoent?
+		contextbg.fillRect(20+distWeight,16,2,10);		// 110 pixels at the momoent?
+
+		contextbg.font = "bold 20px Lucida Console";		
+		var postext=20+distWeight;
+
+		contextbg.fillText(" 1 AO ≈ 150.000.000km", postext,24);				// IT's moving, have to put it in a backgroudn canvsa... yet again toa voud that.
+		contextbg.fillText("Earth Years:"+earthYears, 20,50);				// IT's moving, have to put it in a backgroudn canvsa... yet again toa voud that.
+		contextbg.fillText("https://github.com/cveto/EarthAtCenter", 20,1060);				// IT's moving, have to put it in a backgroudn canvsa... yet again toa voud that.
+
+		context.closePath();
+		context.fill();
+
+
+	// -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	// Get variables from HTML to JAVASCRIPT
+		document.getElementById("earthYears").innerHTML = earthYears;  
+		distWeight = Number(document.getElementById("sliderSize").value);
+		document.getElementById("valueSize").innerHTML=distWeight;
 }
 
+// CLEARS THE CANVAS..es?
 function clear() {
 	context.translate(0,0);				// So it clear from the actual zero
 	contextbg.translate(0,0);
@@ -384,9 +926,7 @@ function clear() {
 	frameCounter=0;
 }
 
-
-
-
+// TO CLEAR RECT OR NOT TO CLEAR CANAS?
 function toggleDraw() {
 	
   // TOGGLE BUTTON - DRAW ON or OFF
@@ -399,540 +939,11 @@ function toggleDraw() {
 	}
 }
 
-function draw()
-{
-	if (timeIncreasing == 1) {
-		frameCounter+=1;
-	}
-	
-	document.getElementById("frameCounter").innerHTML=frameCounter;
-	
-	// SPEEDS OF PLANETS REALTIVE TO EARTH
-	// Why was this done like this and not with angular frequency?
-	// Because absolute speed doesn't matter. All that matters is the realitve body speed.
-	speedEarth = document.getElementById("sliderSpeed").value/1000;
-	document.getElementById("valueSpeed").innerHTML=speedEarth*1000;
-
-	linethickness = Number(document.getElementById("sliderLineThickness").value);
-	document.getElementById("valueLine").innerHTML=linethickness;
-	
-	// SPEEDS
-	var speedMercury=speedEarth/(daysMercury/daysEarth);
-	var speedVenus=speedEarth/(daysVenus/daysEarth);
-	var speedMars=speedEarth/(daysMars/daysEarth);
-	var speedJupiter=speedEarth/(daysJupiter/daysEarth);
-	var speedSaturn=speedEarth/(daysSaturn/daysEarth);
-	var speedUranus=speedEarth/(daysUranus/daysEarth);
-	var speedNeptune=speedEarth/(daysNeptune/daysEarth);
-	var speedPluto=speedEarth/(daysPluto/daysEarth);
-	var speedMoon=speedEarth/(daysMoon/daysEarth);
-	
-	// PICTURES FOR PLANETS
-		
-	var imgmercury = document.getElementById("imgmercury");
-    var imgvenus = document.getElementById("imgvenus");
-    var imgearth = document.getElementById("imgearth");
-	var imgmars = document.getElementById("imgmars");
-	var imgjupiter = document.getElementById("imgjupiter");
-	var imgsun = document.getElementById("imgsun");
-	var imgmoon = document.getElementById("imgmoon");
- 
- 
-if (timeIncreasing==1) {
-		 // THIS MAKES THEM TICK.  
-			// FI angle of the EARTH (omega*t) fid is (speed*omega*t)
-			fi+=0.1*dfi;
-			fid = speedEarth*fi;
-
-				// KEEPING TRACK OF TIME
-					if (drawOn==0) {
-						// I AM NOT IN DRAW MODE
-						fidold=fid;
-						flag_earthYears=0;			// DONT COUINT
-					}
-					if (fid < fidold) {		// He must have gone throug 0 already - count next one
-						flag_earthYears=1;
-					}
-
-					if (fid>fidold && flag_earthYears==1) {
-						// A year has pased since we started drawing
-						flag_earthYears=0;
-						earthYears+=1;					// THIS NEEDS TO BE SMARTER
-					} 
-					
-					
-					// KEEPING TRACK OF TIME 2
-					if (drawOn==1) {
-						// I AM NOT IN DRAW MODE
-						fidold2=fid;
-						flag_earthYears2=0;			// DONT COUINT
-					}
-					if (fid < fidold2) {		
-						flag_earthYears2=1;
-					}
-
-					if (fid>fidold2 && flag_earthYears2==1 && fidold2 != 0) {		// He shouldn't be zero... bechaoe.
-						// A year has pased since we started drawing
-						flag_earthYears2=0;
-						earthYears+=1;					// THIS NEEDS TO BE SMARTER
-					} 
-			
-
-			
-			
-			if (fid > Math.PI*2) {
-				fi = 0;
-				flag_earthYears=1;
-				
-				if (fidold2==0 || fidold==0) {
-					earthYears+=1;
-				}
-			}
-			fi+=0.1*dfi;
-
-			
-			// MERCURY phi
-			fiMercury+=0.1*dfi;
-			fidMercury = speedMercury*fiMercury;
-			if (fidMercury > Math.PI*2) {
-				fiMercury = 0;
-			}
-			fiMercury+=0.1*dfi;
-
-			// VENUS phi
-			fiVenus+=0.1*dfi;
-			fidVenus = speedVenus*fiVenus;
-			if (fidVenus > Math.PI*2) {
-				fiVenus = 0;
-			}
-			fiVenus+=0.1*dfi;
-
-			// MARS phi
-			fiMars+=0.1*dfi;
-			fidMars = speedMars*fiMars;
-			if (fidMars > Math.PI*2) {
-				fiMars = 0;
-			}
-			fiMars+=0.1*dfi;
-
-			// JUPITER phi
-			fiJupiter+=0.1*dfi;
-			fidJupiter = speedJupiter*fiJupiter;
-			if (fidJupiter > Math.PI*2) {
-				fiJupiter = 0;
-			}
-			fiJupiter+=0.1*dfi;	
-
-			// Saturn phi
-			fiSaturn+=0.1*dfi;
-			fidSaturn = speedSaturn*fiSaturn;
-			if (fidSaturn > Math.PI*2) {
-				fiSaturn = 0;
-			}
-			fiSaturn+=0.1*dfi;				
-			
-			// Uranus phi
-			fiUranus+=0.1*dfi;
-			fidUranus = speedUranus*fiUranus;
-			if (fidUranus > Math.PI*2) {
-				fiUranus = 0;
-			}
-			fiUranus+=0.1*dfi;				
-
-			// Neptune phi
-			fiNeptune+=0.1*dfi;
-			fidNeptune = speedNeptune*fiNeptune;
-			if (fidNeptune > Math.PI*2) {
-				fiNeptune = 0;
-			}
-			fiNeptune+=0.1*dfi;				
-			
-			// Pluto phi
-			fiPluto+=0.1*dfi;
-			fidPluto = speedPluto*fiPluto;
-			if (fidPluto > Math.PI*2) {
-				fiPluto = 0;
-			}
-			fiPluto+=0.1*dfi;				
-			
-			// Testing
-			// Moon phi
-			fiMoon+=0.1*dfi;
-			fidMoon = speedMoon*fiMoon;
-			if (fidMoon > Math.PI*2) {
-				fiMoon = 0;
-			}
-			fiMoon+=0.1*dfi;	
-}
-	
-    // Save old coordinates of Earth for Geocentric model 
-	// Why? So I know how to move the coordinate system to put Earth always to the center
-	posEarthOLDx=posEarthX;
-	posEarthOLDy=posEarthY;
-	
-	// COORDINATES OF EARTH
-	posEarthX = posSunX+linear_e_Earth+distWeight*amplitudeXEarth*Math.cos(fid);
-	posEarthY = posSunY+distWeight*amplitudeYEarth*Math.sin(fid);
-	
-	// BUTTON TO PUT EARTH TO CENTER (Resets coordinates).. why does it also work for the sun?
-	button_Centralize.onclick = function(event) {
-	posEarthX=posCenterX;
-	posEarthY=posCenterY;
-	context.setTransform(1, 0, 0, 1, 0, 0);			// Resets the canvas
-    };
-
-	// BUTTON TO PUT EARTH TO CENTER (Resets coordinates)
-
-		
-		
-		var furthestPlanetfromEarth;
-		
-		button_NormalizeZoom.onclick = function(event) {
-		
-		// Check every one by size - from furthest to least further
-		if (document.getElementById("markPluto").checked==1) {
-			furthestPlanetfromEarth=aphelionEarth+aphelionPluto;
-			
-		} else if (document.getElementById("markNeptune").checked==1) {
-			furthestPlanetfromEarth=aphelionEarth+aphelionNeptune;
-			
-		} else if (document.getElementById("markUranus").checked==1) {
-			furthestPlanetfromEarth=aphelionEarth+aphelionUranus;
-			
-		} else if (document.getElementById("markSaturn").checked==1) {
-			furthestPlanetfromEarth=aphelionEarth+aphelionSaturn;
-			
-		} else if (document.getElementById("markJupiter").checked==1) {
-			furthestPlanetfromEarth=aphelionEarth+aphelionJupiter;
-			
-		} else if (document.getElementById("markMars").checked==1) {
-			furthestPlanetfromEarth=aphelionEarth+aphelionMars;
-			
-		}  else if (document.getElementById("markVenus").checked==1) {
-			furthestPlanetfromEarth=aphelionEarth+aphelionVenus;
-			
-		} else if (document.getElementById("markMercury").checked==1) {
-			furthestPlanetfromEarth=aphelionEarth+aphelionMercury;
-			
-		} else if (document.getElementById("markEarth").checked==1) {
-			furthestPlanetfromEarth=aphelionEarth;
-			
-		}
-	
-		distWeight=(canvasHeight*0.42)/furthestPlanetfromEarth;				// Maxium distance from the center (the earth) to the edge (FULL HAD 1080pixeld halfed) should be distance from earth to planet which is earth - sun + sun - aphelion planet
-		document.getElementById("sliderSize").value=distWeight;
-    };
-	
-	
-	
-	// Toggle between Geocentrical and Heliocentrical model - for EARTH only
- 	if (stikalo == 1) {
-		trnx=posEarthOLDx-posEarthX;
-		trny=posEarthOLDy-posEarthY; 
-		context.translate(trnx, trny);			// THIS IS WHERE THE CONTEXT TRANSLATES; AAAA
-		
-		// Had some radnom offset without rounding - even floor doesnt work
-		trnx=Math.round(trnx*1000)/1000;
-		trny=Math.round(trny*1000)/1000;
-		
-    	document.getElementById("button_Switch").innerHTML = "Switch to HELIOCENTRICAL model";
-	} else {
-		document.getElementById("button_Switch").innerHTML = "Switch to GEOCENTRICAL model";
-	}
-
-    // COORDINATES of moon  not accurate
-	posMoonX = posEarthX+20*Math.cos(fidMoon);
-	posMoonY = posEarthY+20*Math.sin(fidMoon);
-	
-	// COORDINATES of Mercury
-	posMercuryX = posSunX+linear_e_Mercury+distWeight*amplitudeXMercury*Math.cos(fidMercury);
-	posMercuryY = posSunY+distWeight*amplitudeYMercury*Math.sin(fidMercury);
-	
-	// COORDINATES of Venus
-	posVenusX = posSunX+linear_e_Venus+distWeight*amplitudeXVenus*Math.cos(fidVenus);
-	posVenusY = posSunY+distWeight*amplitudeYVenus*Math.sin(fidVenus);
-
-	// COORDINATES of Mars	
-	posMarsX = posSunX+linear_e_Mars+distWeight*amplitudeXMars*Math.cos(fidMars);
-	posMarsY = posSunY+distWeight*amplitudeYMars*Math.sin(fidMars);
-
-	// COORDINATES of Jupiter
-	posJupiterX = posSunX+linear_e_Jupiter+distWeight*amplitudeXJupiter*Math.cos(fidJupiter);
-	posJupiterY = posSunY+distWeight*amplitudeYJupiter*Math.sin(fidJupiter);
-
-	// COORDINATES of Saturn
-	posSaturnX = posSunX+linear_e_Saturn+distWeight*amplitudeXSaturn*Math.cos(fidSaturn);
-	posSaturnY = posSunY+distWeight*amplitudeYSaturn*Math.sin(fidSaturn);
-	
-	// COORDINATES of Uranus
-	posUranusX = posSunX+linear_e_Uranus+distWeight*amplitudeXUranus*Math.cos(fidUranus);
-	posUranusY = posSunY+distWeight*amplitudeYUranus*Math.sin(fidUranus);
-	
-	// COORDINATES of Neptune
-	posNeptuneX = posSunX+linear_e_Neptune+distWeight*amplitudeXNeptune*Math.cos(fidNeptune);
-	posNeptuneY = posSunY+distWeight*amplitudeYNeptune*Math.sin(fidNeptune);
-	
-	// COORDINATES of Pluto
-	posPlutoX = posSunX+linear_e_Pluto+distWeight*amplitudeXPluto*Math.cos(fidPluto);
-	posPlutoY = posSunY+distWeight*amplitudeYPluto*Math.sin(fidPluto);
-
-
-  // TOGGLE BUTTON - between HELIOCENTRICAL or GEOCENTRICAL model
-  button_Switch.onclick = function(event) {
-	if (stikalo==0) {
-		stikalo = 1;
-	} else if (stikalo==1) {
-		stikalo = 0;
-	}
-  };
-	
-  // TOGGLE BUTTON - DRAW ON or OFF        ON CLICK
-  button_Draw.onclick = function(event) {
-	if (drawOn==0) {
-		drawOn = 1;
-		earthYears=0;		// RESET TIMER
-		frameCounter=0;
-		document.getElementById("button_Draw").innerHTML = "DRAW OFF";
-	} else if (drawOn==1) {
-		drawOn = 0;
-		earthYears=0;		// RESET TIMER
-		document.getElementById("button_Draw").innerHTML = "DRAW ON";
-		frameCounter=0;
-
-	}
-  };
-  
-    button_Clear.onclick = function(event) {
-		clear();
-	};
-
-	
-  button_StopTime.onclick = function(event) {
-	if (timeIncreasing==0) {
-		timeIncreasing=1;
-		document.getElementById("button_StopTime").innerHTML = "PAUSE";
-	} else if (timeIncreasing==1) {
-		timeIncreasing = 0;
-		document.getElementById("button_StopTime").innerHTML = "RESUME";
-	}
-  };
-	
-
-	////////// HERE is where I tell javascript to actually put anything on the canvas
-	var planetsize=30
-	context.beginPath();
-		
-	// PUTS PLANTES ON THE CANVAS
-	// DRAW lines if DRAW is ON, then stop showing images
-
-	if (drawOn==0) {	
-		flag_draw=0;	
-
-	// START DRAWING		// ON BACKGROUND CANVAS
-
-		context.translate(0,0)
-		context.clearRect(0,0, contextWidth,contextHeight);
-		
-		  // SUN
-		if (document.getElementById("markSun").checked == '1') {
-			//context.drawImage(imgsun, posSunX-planetsize/2, posSunY-planetsize/2,planetsize,planetsize)
-				drawPlanet(posSunX,posSunY,planetsizeMORTY,"yellow","orange");		
-
-		} 
-		  // MOON
-		if (document.getElementById("markMoon").checked == '1') {
-		//context.drawImage(imgmoon, posMoonX-planetsize/4, posMoonY-planetsize/4,planetsize/2,planetsize/2);
-				drawPlanet(posMoonX,posMoonY,planetsizeMORTY/2,"white","gray");		
-
-		} 
-		  // MERCURY
-		if (document.getElementById("markMercury").checked == '1') {
-	    //context.drawImage(imgmercury, posMercuryX-planetsize/2, posMercuryY-planetsize/2,planetsize,planetsize);
-    		drawPlanet(posMercuryX,posMercuryY,planetsizeMORTY,"yellow","white");		
-		
-		}  
-		  // VENUS
-		if (document.getElementById("markVenus").checked == '1') {
-	    //context.drawImage(imgvenus, posVenusX-planetsize/2, posVenusY-planetsize/2,planetsize,planetsize);
-		drawPlanet(posVenusX,posVenusY,planetsizeMORTY,"orange","brown");	
-		} 
-		  // EARTH
-		if (document.getElementById("markEarth").checked == '1') {
-	    //context.drawImage(imgearth, posEarthX-planetsize/2, posEarthY-planetsize/2,planetsize,planetsize);
-			drawPlanet(posEarthX,posEarthY,planetsizeMORTY,"green","blue");		
-		} 
-		  // MARS
-		if (document.getElementById("markMars").checked == '1') {
-		//context.drawImage(imgmars, posMarsX-planetsize/2, posMarsY-planetsize/2,planetsize,planetsize);
-			drawPlanet(posMarsX,posMarsY,planetsizeMORTY,"orange","red");		
-
-		} 
-		  // JUPITER
-		if (document.getElementById("markJupiter").checked == '1') {
-		//context.drawImage(imgjupiter, posJupiterX-planetsize/2, posJupiterY-planetsize/2,planetsize,planetsize);
-		drawPlanet(posJupiterX,posJupiterY,planetsizeMORTY,"brown","#ffd9b3");	
-		}
-		  // Saturn
-		if (document.getElementById("markSaturn").checked == '1') {
-		//context.drawImage(imgSaturn, posSaturnX-planetsize/2, posSaturnY-planetsize/2,planetsize,planetsize);
-		drawPlanet(posSaturnX,posSaturnY,planetsizeMORTY,"gray","#fff2e6");	
-
-		} 
-		  // Uranus
-		if (document.getElementById("markUranus").checked == '1') {
-		//context.drawImage(imgUranus, posUranusX-planetsize/2, posUranusY-planetsize/2,planetsize,planetsize);
-		drawPlanet(posUranusX,posUranusY,planetsizeMORTY,"blue","#b3b3ff");	
-
-		}
-		 // Neptune
-		if (document.getElementById("markNeptune").checked == '1') {
-		//context.drawImage(imgNeptune, posNeptuneX-planetsize/2, posNeptuneY-planetsize/2,planetsize,planetsize);
-		drawPlanet(posNeptuneX,posNeptuneY,planetsizeMORTY,"#0000e6","#e6ccff");	
-
-		}
-		  // Pluto
-		if (document.getElementById("markPluto").checked == '1') {
-		//context.drawImage(imgPluto, posPlutoX-planetsize/2, posPlutoY-planetsize/2,planetsize,planetsize);
-		drawPlanet(posPlutoX,posPlutoY,planetsizeMORTY,"yellow","#cce6ff");	
-
-		}
-
-		// DOWNLOAD FRAMES!!
-
-		
-	} else {		// DRAW IS OFF - show planets
-		
-		// CLEAR ONLY ONCE
-		if (flag_draw==0) {
-			context.clearRect(0,0, contextWidth,contextHeight);
-			flag_draw=1;	
-		}
-
-		// WHICH PLANET?
-		////////////////// MAKES DOTS!
-		  // SUN
-		if (document.getElementById("markSun").checked == '1') {
-		  context.fillStyle = 'orange';
-		  context.fillRect(posSunX, posSunY, linethickness, linethickness);
-		  
-		  // ALSO DRAW SUN IF THE VIEW ID HELIOCENTRICAL
-		  if (stikalo==0) {
-		  		drawPlanet(posSunX,posSunY,planetsizeMORTY,"yellow","orange");	
-		  }
-		  
-		  
-		} 
-		  // MERCURY
-		if (document.getElementById("markMercury").checked == '1') {
-		  context.fillStyle = '#FFD500';
-		  context.fillRect(posMercuryX, posMercuryY, linethickness, linethickness);
-		}  
-		  // VENUS
-		if (document.getElementById("markVenus").checked == '1') {
-		  context.fillStyle = '#FFFF00';
-		  context.fillRect(posVenusX, posVenusY, linethickness, linethickness);
-		} 
-		  // EARTH
-		if (document.getElementById("markEarth").checked == '1') {
-		  context.fillStyle = '#1FF627';			
-		  context.fillRect(posEarthX, posEarthY, linethickness, linethickness);
-		  //	
-		} 
-		 
-		  // MOON
-		if (document.getElementById("markMoon").checked == '1') {
-		  context.fillStyle = 'black';
-		  context.fillRect(posMoonX, posMoonY, linethickness, linethickness);
-		} 
-		  // MARS
-		if (document.getElementById("markMars").checked == '1') {
-			context.fillStyle = '#F30000';
-			context.fillRect(posMarsX, posMarsY, linethickness, linethickness);
-		} 
-		  // JUPITER
-		if (document.getElementById("markJupiter").checked == '1') {
-		  context.fillStyle = '#FF9933';
-		  context.fillRect(posJupiterX, posJupiterY, linethickness, linethickness);
-		}
-		  // Saturn
-		if (document.getElementById("markSaturn").checked == '1') {
-		  context.fillStyle = '#CBB838';
-		  context.fillRect(posSaturnX, posSaturnY, linethickness, linethickness);
-		  context.fillRect(posSaturnX-20,posSaturnY,posSaturnX+20,posSaturnY+1);
-		}
-		  // Uranus
-		if (document.getElementById("markUranus").checked == '1') {
-		  context.fillStyle = '#283ECE';
-		  context.fillRect(posUranusX, posUranusY, linethickness, linethickness);
-		}
-		 // Neptune
-		if (document.getElementById("markNeptune").checked == '1') {
-		  context.fillStyle = 'purple';
-		  context.fillRect(posNeptuneX, posNeptuneY, linethickness, linethickness);
-		}
-		  // Pluto
-		if (document.getElementById("markPluto").checked == '1') {
-		  context.fillStyle = 'blue';
-		  context.fillRect(posPlutoX, posPlutoY, linethickness, linethickness);
-		}
-				
-		// MILLIONS OF FRAMES
-		if (document.getElementById("range_downloadFrames").value==1 && timeIncreasing==1) {	
-			var howmany=Number(document.getElementById("HowManyFrames").value);
-			var fromFrame=Number(document.getElementById("FromFrame").value);
-			var filename="Slika"+frameCounter;
-				// ONLY DOWNLAD THAT MANY
-				
-
-				if (frameCounter <= howmany) {
-					if (frameCounter >= fromFrame) {
-					downloadCanvas(filename);
-					}
-				} else {		// STOP SIMULATION
-					timeIncreasing=0;
-					document.getElementById("range_downloadFrames").value=0;
-				}
-			
-			
-		}
-		
-		
-	
-
-		
-		
-	}
-	
-	
-	// SHOW UNITS ON BACKGROUND CNAVA
-		contextbg.clearRect(0,0, contextWidth,contextHeight);
-		contextbg.fillRect(20,20,distWeight,2);			// 110 pixels at the momoent?
-		contextbg.fillRect(20,16,2,10);					// 110 pixels at the momoent?
-		contextbg.fillRect(20+distWeight,16,2,10);		// 110 pixels at the momoent?
-
-		
-		contextbg.font = "bold 20px Lucida Console";		
-		var postext=20+distWeight;
-
-		contextbg.fillText(" 1 AO ≈ 150.000.000km", postext,24);				// IT's moving, have to put it in a backgroudn canvsa... yet again toa voud that.
-		contextbg.fillText("Earth Years:"+earthYears, 20,50);				// IT's moving, have to put it in a backgroudn canvsa... yet again toa voud that.
-		contextbg.fillText("https://github.com/cveto/EarthAtCenter", 20,1060);				// IT's moving, have to put it in a backgroudn canvsa... yet again toa voud that.
-
-	context.closePath();
-	context.fill();
-
-
-	// Get variables from HTML to JAVASCRIPT
-	document.getElementById("earthYears").innerHTML = earthYears;  
-	distWeight = Number(document.getElementById("sliderSize").value);
-	document.getElementById("valueSize").innerHTML=distWeight;
-	
-	
-}
-
+// DRAWS THOSE NICE GRADIENT CIRCLES - trying to avoud images, i like software in one file
 function drawPlanet(circlex,circley,circleRadius,color1,color2) {
-
-    var radgrad = context.createRadialGradient(circlex,circley,circleRadius/4,circlex+5,circley+5,circleRadius);
+	var offset=1.5;			// I DON?T KNOW HOW THIS RADIUS WORKS; IT?S A BIT STRANGEro
+    var radgrad = context.createRadialGradient( circlex+offset,	circley+offset,	circleRadius/4,
+												circlex+offset,	circley+offset,	circleRadius);
         radgrad.addColorStop(0, color1);
         radgrad.addColorStop(0.9, color2);
         radgrad.addColorStop(1, 'rgba(1,159,98,0)');
@@ -970,6 +981,16 @@ function downloadCanvas(filename) {
   link.href = whiteCanvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
   link.click();
 }
+
+// I..forgot what this does, will check it out later
+function togglePlanet(body) {
+	if (document.getElementById(body).checked==0) {
+		document.getElementById(body).checked=1;
+	} else {
+		document.getElementById(body).checked=0;
+	}
+}
+
 </script>
 
 <body bgcolor="white" onLoad="init();">
@@ -1029,7 +1050,8 @@ function downloadCanvas(filename) {
 			
 		<input type="range" id="range_downloadFrames" min="0" max="1" value="0"> DOWNLOAD FRAMES </input> <br/>
 		FROM:<input type="text" id="FromFrame" size="3"></input>
-		TO:<input type="text" id="HowManyFrames" size="3"></input>
+		TO:<input type="text" id="HowManyFrames" size="3"></input><br />
+		FILENAME: <input type="text" id="filename" size=7></input>.png
 
 
 <!-- 			<div align="center"><a class="example_d" rel="nofollow noopener" onclick="downloadCanvas()">  IZVOZI EN PNG </a></div>	 -->
@@ -1071,5 +1093,10 @@ function downloadCanvas(filename) {
 
 </div>
 
+<!-- 
+	- For moon around sun and earth:  1920x1080	Line: 2		Speed: 59	Zoom 446	
+	- For venus Earth:							Line: 3     Speed 148  Zoom 260
 
+
+ -->
 </body>
