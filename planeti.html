@@ -108,7 +108,7 @@ var posCenterY=contextHeight/2;
 timeIncreasing = 1;
 
 /////////// CONSTANTS and it's derivations ////////////
-// Year length for planets in Earth days
+// Year length for planets in 
 var daysMercury=87.97;
 var daysVenus=224.701;
 var daysEarth=365.265;
@@ -145,6 +145,7 @@ var perihelionEarth=0.98329;
 var amplitudeXEarth=(aphelionEarth+perihelionEarth)/2; 		 // How much left and right for X
 var linear_e_Earth=amplitudeXEarth-perihelionEarth;					// offset How much away from the center of elipse
 var amplitudeYEarth=Math.sqrt(Math.pow(amplitudeXEarth,2)-Math.pow(linear_e_Earth,2));
+var daysInEarthYear=365.2422;
 
 	// Mars
 var distMars=1.524; 
@@ -229,7 +230,7 @@ var posMoonY;
 
 // Speed of going around the sun
 var speedEarth; 			// max 1
-var drawInterval=20;			// 40 is 25 frames per second..  300 works saving 1920 1080 with mozilla.. will try 4K..
+var drawInterval=40;			// 40 is 25 frames per second..  300 works saving 1920 1080 with mozilla.. will try 4K..
 
 // Poolar coordinate of the planetary body (used to derivate it to cartesian)
 // fi goes from -3.14 to +3.14 radians
@@ -244,7 +245,7 @@ var fiNeptune=0;
 var fiPluto=0;
 var fiMoon=0;
 
-// fid will be weighed. Would be smarter to make cos(omega*t)
+// fid will be weighed. Would be smarter to make cos(omega*t).. why didn't i think this through....
 var fid;
 var fidMercury;
 var fidVenus;
@@ -362,8 +363,38 @@ function draw() {
 	// SPEEDS OF PLANETS REALTIVE TO EARTH
 		// Why was this done like this and not with angular frequency?
 		// Because absolute speed doesn't matter. All that matters is the realitve body speed.
-		speedEarth = document.getElementById("sliderSpeed").value/1000;
-		document.getElementById("valueSpeed").innerHTML=speedEarth*1000;
+		
+		//speedEarth = document.getElementById("sliderSpeed").value
+		var samplesPerEarthYear = document.getElementById("sliderSpeed").value/10;
+		speedEarth=(10*Math.PI)/(dfi*samplesPerEarthYear);
+		document.getElementById("valueSpeed").innerHTML=samplesPerEarthYear;
+	
+		
+		
+		
+		
+		
+		
+
+	//	How many dots per year -?
+				// fid = N * speedEarth * dfi/10
+				// Ko je fid = 2*PI, je en krog okoli zemlje, e.g. 365..11? dni
+				// Kdaj je fid 2*PI*  fid  = 2*PI = N * speedEarth * dfi/10
+				// N = (10*2PI)/(speedEarth*dfi) . toliko pik
+				//fid= (speedEarth*0.1*fi)..  ko je fid 2*PI, je  1 leto, torej.. speedEarth
+				
+		//var DotsPerEarthYear=(10*Math.PI*2)/(dfi*speedEarth);	// I dont
+			// The distance between theese dots represent a certain time..  365days/DotsPerEarthYear=Time between 2 dots
+			// wHAT IS the distance between 2 dots?
+			// IT shows speed, not time. Speed relative to sun, speed relative to earth
+			// Speed realtive to sun: Earth 2 dots means.. v=s/t, t imam,
+			
+			//var eartHoursBetween2dots=365/DotsPerEarthYear*24;
+			// var 
+			
+
+
+
 		
 	// PICTURES FOR PLANETS
 		var imgmercury = document.getElementById("imgmercury");
@@ -387,60 +418,61 @@ function draw() {
 		var speedPluto=speedEarth/(daysPluto/daysEarth);
 		var speedMoon=speedEarth/(daysMoon/daysEarth);
 		
+		
 	// -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+	
 	// ANIMATION
 	// THIS MAKES THEM TICK.  
 	if (timeIncreasing==1) {
 
 	 	// FI angle of the EARTH (omega*t) fid is (speed*omega*t)
-	 	fi+=0.1*dfi;
-	 	fid = speedEarth*fi;
+	 	fi+=0.1*dfi;			// THIS SHOULD BE TIME..it is what it is.
+	 	fid = speedEarth*fi;  		
 	 
 	 	// KEEPING TRACK OF TIME - this is to remember at what position draw on of was clicked  - so it only counts years from that angle.
 		//	WORKS FOR ANY ANGLE EXCEPT 0.. for that the logic is down below
-	 		if (drawOn==0) {
-	 			// I AM NOT IN DRAW MODE
-	 			fidold=fid;
-	 			flag_earthYears=0;			// DONT COUINT
-	 		}
-	 		if (fid < fidold) {		// He must have gone throug 0 already - count next one
-	 			flag_earthYears=1;
-	 		}
-	 
-	 		if (fid>fidold && flag_earthYears==1) {
-	 			// A year has pased since we started drawing
-	 			flag_earthYears=0;
-	 			earthYears+=1;					// THIS NEEDS TO BE SMARTER
-	 		} 
-	 		
-	 		
-	 		// KEEPING TRACK OF TIME 2
-	 		if (drawOn==1) {
-	 			// I AM NOT IN DRAW MODE
-	 			fidold2=fid;
-	 			flag_earthYears2=0;			// DONT COUINT
-	 		}
-	 		if (fid < fidold2) {		
-	 			flag_earthYears2=1;
-	 		}
-	 
-	 		if (fid>fidold2 && flag_earthYears2==1 && fidold2 != 0) {		// He shouldn't be zero... bechaoe.
-	 			// A year has pased since we started drawing
-	 			flag_earthYears2=0;
-	 			earthYears+=1;					// THIS NEEDS TO BE SMARTER
-	 		} 
+////	 		if (drawOn==0) {
+////	 			// I AM NOT IN DRAW MODE
+////	 			fidold=fid;
+////	 			flag_earthYears=0;			// DONT COUINT
+////	 		}
+////	 		if (fid < fidold) {		// He must have gone throug 0 already - count next one
+////	 			flag_earthYears=1;
+////	 		}
+////	 
+////	 		if (fid>fidold && flag_earthYears==1) {
+////	 			// A year has pased since we started drawing
+////	 			flag_earthYears=0;
+////	 			earthYears+=1;					// THIS NEEDS TO BE SMARTER
+////	 		} 
+////	 		
+////	 		
+////	 		// KEEPING TRACK OF TIME 2
+////	 		if (drawOn==1) {
+////	 			// I AM NOT IN DRAW MODE
+////	 			fidold2=fid;
+////	 			flag_earthYears2=0;			// DONT COUINT
+////	 		}
+////	 		if (fid < fidold2) {		
+////	 			flag_earthYears2=1;
+////	 		}
+////	 
+////	 		if (fid>fidold2 && flag_earthYears2==1 && fidold2 != 0) {		// He shouldn't be zero... bechaoe.
+////	 			// A year has pased since we started drawing
+////	 			flag_earthYears2=0;
+////	 			earthYears+=1;					// THIS NEEDS TO BE SMARTER
+////	 		} 
 	 	
 	 
 	 	
 	 // CYCLICAL ANGLES - FOR ALL PLANETS
-	 	if (fid > Math.PI*2) {
-	 		fi = 0;
+	 	if (fid >= Math.PI*2) {
+	 		fi = (fid-(2*Math.PI))/speedEarth;		// NOT ZERO, it's already over!  
 	 		flag_earthYears=1;
 	 		
 			// KEEPING TRACK ON TIME IF ANGLE IS 0.
-	 		if (fidold2==0 || fidold==0) {
+////	 		if (fidold2==0 || fidold==0) {
 	 			earthYears+=1;
-	 		}
+////	 		}
 	 	}
 	 	fi+=0.1*dfi;
 	 
@@ -449,15 +481,18 @@ function draw() {
 	 	fiMercury+=0.1*dfi;
 	 	fidMercury = speedMercury*fiMercury;
 	 	if (fidMercury > Math.PI*2) {
-	 		fiMercury = 0;
 	 	}
+			fiMercury = (fidMercury-(2*Math.PI))/speedMercury;
 	 	fiMercury+=0.1*dfi;
 	 
 	 	// VENUS phi
 	 	fiVenus+=0.1*dfi;
-	 	fidVenus = speedVenus*fiVenus;
-	 	if (fidVenus > Math.PI*2) {
-	 		fiVenus = 0;
+	 	fidVenus = speedVenus*fiVenus;			// fi = omegat*t = 
+		
+	 	if (fidVenus >= Math.PI*2) {
+	 		//fiVenus = 0.1*dfi;		// NOPE; THAT EINT RIGHT.
+			fiVenus = (fidVenus-(2*Math.PI))/speedVenus;		// THE SOLUTION IS WORSE THAN THE PROBLEM. (Yeah,..You know what year this was written is...)
+
 	 	}
 	 	fiVenus+=0.1*dfi;
 	 
@@ -465,7 +500,7 @@ function draw() {
 	 	fiMars+=0.1*dfi;
 	 	fidMars = speedMars*fiMars;
 	 	if (fidMars > Math.PI*2) {
-	 		fiMars = 0;
+	 		fiMars = (fidMars-(2*Math.PI))/speedMars;
 	 	}
 	 	fiMars+=0.1*dfi;
 	 
@@ -473,7 +508,7 @@ function draw() {
 	 	fiJupiter+=0.1*dfi;
 	 	fidJupiter = speedJupiter*fiJupiter;
 	 	if (fidJupiter > Math.PI*2) {
-	 		fiJupiter = 0;
+	 		fiJupiter = (fidJupiter-(2*Math.PI))/speedJupiter;
 	 	}
 	 	fiJupiter+=0.1*dfi;	
 	 
@@ -481,7 +516,7 @@ function draw() {
 	 	fiSaturn+=0.1*dfi;
 	 	fidSaturn = speedSaturn*fiSaturn;
 	 	if (fidSaturn > Math.PI*2) {
-	 		fiSaturn = 0;
+	 		fiSaturn = (fidSaturn-(2*Math.PI))/speedSaturn;
 	 	}
 	 	fiSaturn+=0.1*dfi;				
 	 	
@@ -489,7 +524,7 @@ function draw() {
 	 	fiUranus+=0.1*dfi;
 	 	fidUranus = speedUranus*fiUranus;
 	 	if (fidUranus > Math.PI*2) {
-	 		fiUranus = 0;
+	 		fiUranus = (fidUranus-(2*Math.PI))/speedUranus;
 	 	}
 	 	fiUranus+=0.1*dfi;				
 	 
@@ -497,7 +532,7 @@ function draw() {
 	 	fiNeptune+=0.1*dfi;
 	 	fidNeptune = speedNeptune*fiNeptune;
 	 	if (fidNeptune > Math.PI*2) {
-	 		fiNeptune = 0;
+	 		fiNeptune = (fidNeptune-(2*Math.PI))/speedNeptune;
 	 	}
 	 	fiNeptune+=0.1*dfi;				
 	 	
@@ -505,7 +540,7 @@ function draw() {
 	 	fiPluto+=0.1*dfi;
 	 	fidPluto = speedPluto*fiPluto;
 	 	if (fidPluto > Math.PI*2) {
-	 		fiPluto = 0;
+	 		fiPluto = (fidPluto-(2*Math.PI))/speedPluto;
 	 	}
 	 	fiPluto+=0.1*dfi;				
 	 	
@@ -521,15 +556,22 @@ function draw() {
 	
     // Save old coordinates of Earth for Geocentric model 
 		// Why? So I know how to move the coordinate system to put Earth always to the center
+		
 		posEarthOLDx=posEarthX;
 		posEarthOLDy=posEarthY;
+		
+		
 	
 	// COORDINATES OF EARTH
 		posEarthX = posSunX+linear_e_Earth+distWeight*amplitudeXEarth*Math.cos(fid);
 		posEarthY = posSunY+distWeight*amplitudeYEarth*Math.sin(fid);
+		
+
+		
 	
 	// BUTTON TO PUT EARTH TO CENTER (Resets coordinates).. why does it also work for the sun?
 		button_Centralize.onclick = function(event) {
+		clear();
 		posEarthX=posCenterX;
 		posEarthY=posCenterY;
 		context.setTransform(1, 0, 0, 1, 0, 0);			// Resets the canvas
@@ -538,6 +580,7 @@ function draw() {
 	// BUTTON TO ZOOM OUT SO PLANET TRAJECTORY FITS THE SCREEN WHEN EARTH IS AT ITS CENTRE. ORDER MATTERS
 		var furthestPlanetfromEarth;
 		button_NormalizeZoom.onclick = function(event) {
+		reset_canvas();
 		
 		// Check every one by size - from furthest to least further
 		if (document.getElementById("markPluto").checked==1) {
@@ -580,9 +623,9 @@ function draw() {
 			trny=posEarthOLDy-posEarthY; 
 			context.translate(trnx, trny);			// THIS IS WHERE THE CONTEXT TRANSLATES; AAAA
 			
+
+			
 			// Had some radnom offset without rounding - even floor doesnt work..even this isn't the best
-			trnx=Math.round(trnx*100)/100;
-			trny=Math.round(trny*100)/100;
 			
 			document.getElementById("button_Switch").innerHTML = "Switch to HELIOCENTRICAL model";
 		} else {
@@ -642,6 +685,9 @@ function draw() {
 			
 		// TOGGLE BUTTON - DRAW ON or OFF        ON CLICK
 		  button_Draw.onclick = function(event) {
+		  
+			reset_canvas();		// BECAUSE COUNTING YEARS
+		  
 			if (drawOn==0) {
 				drawOn = 1;
 				earthYears=0;		// RESET TIMER
@@ -655,9 +701,16 @@ function draw() {
 			}
 		  };
 		
-		// BUTTON TO CLEAR SCREEN
-		button_Clear.onclick = function(event) {
-			clear();
+////			// BUTTON TO CLEAR SCREEN
+////			button_Clear.onclick = function(event) {
+////				reset_canvas();	reset_canvas();	
+////				earthYears=0;
+////				fidold2=fid;
+////			};
+		
+		// BUTTON TO RESET SIMULATION
+		button_Reset.onclick = function(event) {
+			reset_canvas();
 		};
 
 		// BUTTON TO STOP TIME
@@ -670,7 +723,28 @@ function draw() {
 				document.getElementById("button_StopTime").innerHTML = "RESUME";
 			}
 		};
-			
+
+
+	// -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+	// SHOW UNITS ON BACKGROUND CNAVA
+		contextbg.clearRect(0,0, contextWidth,contextHeight);
+		contextbg.fillRect(20,20,distWeight,2);			// 110 pixels at the momoent?
+		contextbg.fillRect(20,16,2,10);					// 110 pixels at the momoent?
+		contextbg.fillRect(20+distWeight,16,2,10);		// 110 pixels at the momoent?
+
+		contextbg.font = "bold 20px Lucida Console";		
+		var postext=20+distWeight;
+		var twodotshowmanyearthdays=Math.round(daysInEarthYear*10/samplesPerEarthYear)/10;
+
+		contextbg.fillText(" 1 AO ≈ 150.000.000km", postext,24);				// IT's moving, have to put it in a backgroudn canvsa... yet again toa voud that.
+		contextbg.fillText("2 dots . . = "+ twodotshowmanyearthdays + " Earth days", 20,50);				// IT's moving, have to put it in a backgroudn canvsa... yet again toa voud that.
+		contextbg.fillText("Earth Years passed: "+earthYears, 20,76);				// IT's moving, have to put it in a backgroudn canvsa... yet again toa voud that.
+		contextbg.fillText("https://github.com/cveto/EarthAtCenter", 20,1060);				// IT's moving, have to put it in a backgroudn canvsa... yet again toa voud that.
+
+		//contextbg.closePath();
+		//contextbg.fill();
+
+
 	// -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 	//  PUT THINGS ON CANVASES THERE ARE 2 -- HERE is where I tell javascript to actually put anything on the canvas
 		var planetsize=30			// ONLY FOR IMAGES
@@ -785,14 +859,16 @@ function draw() {
 		if (document.getElementById("markVenus").checked == '1') {
 		  context.fillStyle = 'purple';
 		  //context.fillRect(posVenusX, posVenusY, linethickness, linethickness);
-		  context.fillRect(posVenusX, posVenusY, linethickness, linethickness);
-			context.arc(posVenusX, posVenusY, 3, 0, 2 * Math.PI);
+			context.fillRect(posVenusX, posVenusY, linethickness, linethickness);
+			// context.arc(posVenusX, posVenusY, 3, 0, 2 * Math.PI);
 		} 
 		
 		// EARTH
 		if (document.getElementById("markEarth").checked == '1') {
 		  context.fillStyle = '#1FF627';			
 		  context.fillRect(posEarthX, posEarthY, linethickness, linethickness);
+		  drawPlanet(posEarthX,posEarthY,planetsizeMORTY,"green","blue","contextbg");		
+
 		  	
 			// DRAW EARTH IF IT?S IN THE CENTRE
 			if (stikalo==1) {
@@ -822,7 +898,7 @@ function draw() {
 		if (document.getElementById("markSaturn").checked == '1') {
 		  context.fillStyle = '#CBB838';
 		  context.fillRect(posSaturnX, posSaturnY, linethickness, linethickness);
-		  context.fillRect(posSaturnX-20,posSaturnY,posSaturnX+20,posSaturnY+1);
+		  //context.fillRect(posSaturnX-20,posSaturnY,posSaturnX+20,posSaturnY+1);
 		}
 		
 		// Uranus
@@ -867,22 +943,7 @@ function draw() {
 			}
 		}
 		
-	// -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-	// SHOW UNITS ON BACKGROUND CNAVA
-		contextbg.clearRect(0,0, contextWidth,contextHeight);
-		contextbg.fillRect(20,20,distWeight,2);			// 110 pixels at the momoent?
-		contextbg.fillRect(20,16,2,10);					// 110 pixels at the momoent?
-		contextbg.fillRect(20+distWeight,16,2,10);		// 110 pixels at the momoent?
 
-		contextbg.font = "bold 20px Lucida Console";		
-		var postext=20+distWeight;
-
-		contextbg.fillText(" 1 AO ≈ 150.000.000km", postext,24);				// IT's moving, have to put it in a backgroudn canvsa... yet again toa voud that.
-		contextbg.fillText("Earth Years:"+earthYears, 20,50);				// IT's moving, have to put it in a backgroudn canvsa... yet again toa voud that.
-		contextbg.fillText("https://github.com/cveto/EarthAtCenter", 20,1060);				// IT's moving, have to put it in a backgroudn canvsa... yet again toa voud that.
-
-		context.closePath();
-		context.fill();
 
 
 	// -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -892,13 +953,8 @@ function draw() {
 		document.getElementById("valueSize").innerHTML=distWeight;
 }
 
-// CLEARS THE CANVAS..es?
-function clear() {
-	context.translate(0,0);				// So it clear from the actual zero
-	contextbg.translate(0,0);
-	context.clearRect(-3000, -3000, 3000, 3000);			// CLEAR FUCKER!
-	context.clearRect(0, 0, canvas.width*2, canvas.height*2);
-
+// SAME AS REFRESH
+function reset_canvas() {
 	t=0;
 	fi=0;
 	fiMercury=0;
@@ -924,6 +980,18 @@ function clear() {
 	
 	fid=0;
 	frameCounter=0;
+	
+	clear();
+}
+
+// CLEAR THE CANVAS CLEAN
+function clear() {
+	context.translate(0,0);				// So it clear from the actual zero
+	contextbg.translate(0,0);
+	context.clearRect(-3000, -3000, 3000, 3000);			// CLEAR FUCKER!
+	context.clearRect(0, 0, canvas.width*2, canvas.height*2);
+
+
 }
 
 // TO CLEAR RECT OR NOT TO CLEAR CANAS?
@@ -940,15 +1008,27 @@ function toggleDraw() {
 }
 
 // DRAWS THOSE NICE GRADIENT CIRCLES - trying to avoud images, i like software in one file
-function drawPlanet(circlex,circley,circleRadius,color1,color2) {
+function drawPlanet(circlex,circley,circleRadius,color1,color2,ctx) {
 	var offset=1.5;			// I DON?T KNOW HOW THIS RADIUS WORKS; IT?S A BIT STRANGEro
-    var radgrad = context.createRadialGradient( circlex+offset,	circley+offset,	circleRadius/4,
-												circlex+offset,	circley+offset,	circleRadius);
-        radgrad.addColorStop(0, color1);
-        radgrad.addColorStop(0.9, color2);
-        radgrad.addColorStop(1, 'rgba(1,159,98,0)');
-	    context.fillStyle = radgrad;
-        context.fillRect(circlex-circleRadius,circley-circleRadius,circlex+2*circleRadius,circley+2*circleRadius);
+
+		
+		if (ctx=="contextbg") {
+		//	var radgrad = contextbg.createRadialGradient( circlex+offset,	circley+offset,	circleRadius/4,
+		//											circlex+offset,	circley+offset,	circleRadius);
+		//	radgrad.addColorStop(0, color1);
+		//	radgrad.addColorStop(0.9, color2);
+		//	radgrad.addColorStop(1, 'rgba(1,159,98,0)');				
+		//	contextbg.fillStyle = radgrad;
+		//	contextbg.fillRect(circlex-circleRadius,circley-circleRadius,circlex+2*circleRadius,circley+2*circleRadius);	
+		} else {
+			var radgrad = context.createRadialGradient( circlex+offset,	circley+offset,	circleRadius/4,
+													circlex+offset,	circley+offset,	circleRadius);
+			radgrad.addColorStop(0, color1);
+			radgrad.addColorStop(0.9, color2);
+			radgrad.addColorStop(1, 'rgba(1,159,98,0)');				
+			context.fillStyle = radgrad;
+			context.fillRect(circlex-circleRadius,circley-circleRadius,circlex+2*circleRadius,circley+2*circleRadius);
+		}
 }
 
 // DOWNLOAD CANVASES - merges 3 canvases, white, backgroudn and front to one.
@@ -1008,7 +1088,8 @@ function togglePlanet(body) {
 			<button class="button" id="button_Switch">Switch to GEOCENTRICAL Model</button>	<br /><br />
 			<button class="button" id="button_Centralize">CENTRALIZE VIEW</button><br /><br />
 			<button class="button" id="button_Draw">DRAW LINES</button>  <br /><br />
-			<button class="button" id="button_Clear"">RESET</button><br /><br />
+			<!-- <button class="button" id="button_Clear"">CLEAR</button><br /><br /> -->
+			<button class="button" id="button_Reset"">RESET</button><br /><br />
 			<button class="button" id="button_StopTime"">PAUSE</button><br /><br />
 			<button class="button" id="button_NormalizeZoom"">NormalizeZoom</button><br /><br />
 
@@ -1030,7 +1111,7 @@ function togglePlanet(body) {
 			Sun: &nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" id="markSun" checked="1"><br />
 			Moon: &nbsp;&nbsp;&nbsp;<input type="checkbox" id="markMoon" checked="1"><br /><br />
 			ZOOM:&nbsp; <input type="range" id="sliderSize" min="1" max="800" value="240"> <span id="valueSize">AA</span><br />
-			SPEED: <input type="range" id="sliderSpeed" min="0" max="1000" value="59"><span id="valueSpeed">AA</span><br />
+			SMPLS: <input type="range" id="sliderSpeed" min="100" max="5000" value="2000"><span id="valueSpeed">AA</span><br />
 			LINE:&nbsp; <input type="range" id="sliderLineThickness" min="1" max="7" value="2"><span id="valueLine">AA</span><br />
 			
 			<p style="font-size:60	px"><b>Earth Years: </b><span id="earthYears"></span></p> <br /> <br />
