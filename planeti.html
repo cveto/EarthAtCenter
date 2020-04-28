@@ -67,6 +67,7 @@ input[type="range"] {
 				  left: 0;
 				  background-color: #FFFEE1	       ;
 				}
+				
 				#spredej {
 				  /* width: 1920px; */  /*THIS BREAKS THEM ON TWO FRO SOME RSASON*/
 				  height: 1080px;
@@ -74,9 +75,18 @@ input[type="range"] {
 				  top: 0;
 				  left: 0;
 				  z-index: 10;
-				  				border-style: groove;
-
-			}
+				  border-style: groove;
+				}
+				
+				#seboljspredej {
+				  /* width: 1920px; */  /*THIS BREAKS THEM ON TWO FRO SOME RSASON*/
+				  height: 1080px;
+				  position: absolute;
+				  top: 0;
+				  left: 0;
+				  z-index: 20;
+				  border-style: groove;
+				}
 
 </style>
 
@@ -96,6 +106,7 @@ var canvasbg;
 
 var context;
 var contextbg;
+var contextfg;
 
 var canvasHeight=1080;
 var canvasWidth=1920;
@@ -129,6 +140,7 @@ var perihelionMercury=0.307499;
 var amplitudeXMercury=(aphelionMercury+perihelionMercury)/2; 		
 var linear_e_Mercury=amplitudeXMercury-perihelionMercury;					
 var amplitudeYMercury=Math.sqrt(Math.pow(amplitudeXMercury,2)-Math.pow(linear_e_Mercury,2));
+var radiusMercury=0.3829;
 
 	// Venus
 var distVenus=0.723;
@@ -137,6 +149,7 @@ var perihelionVenus=0.716449;
 var amplitudeXVenus=(aphelionVenus+perihelionVenus)/2; 		
 var linear_e_Venus=amplitudeXVenus-perihelionVenus;					
 var amplitudeYVenus=Math.sqrt(Math.pow(amplitudeXVenus,2)-Math.pow(linear_e_Venus,2));
+var radiusVenus=0.9499;
 
 	// Earth
 var distEarth=1;  // around 1, +- and
@@ -146,6 +159,7 @@ var amplitudeXEarth=(aphelionEarth+perihelionEarth)/2; 		 // How much left and r
 var linear_e_Earth=amplitudeXEarth-perihelionEarth;					// offset How much away from the center of elipse
 var amplitudeYEarth=Math.sqrt(Math.pow(amplitudeXEarth,2)-Math.pow(linear_e_Earth,2));
 var daysInEarthYear=365.2422;
+var radiusEarth=1
 
 	// Mars
 var distMars=1.524; 
@@ -154,6 +168,7 @@ var perihelionMars=1.382;
 var amplitudeXMars=(aphelionMars+perihelionMars)/2; 		
 var linear_e_Mars=amplitudeXMars-perihelionMars;					
 var amplitudeYMars=Math.sqrt(Math.pow(amplitudeXMars,2)-Math.pow(linear_e_Mars,2));
+var radiusMars=0.5320;
 
 	// Jupiter
 var distJupiter=5.203;
@@ -162,6 +177,7 @@ var perihelionJupiter=4.9501;
 var amplitudeXJupiter=(aphelionJupiter+perihelionJupiter)/2; 		
 var linear_e_Jupiter=amplitudeXJupiter-perihelionJupiter;					
 var amplitudeYJupiter=Math.sqrt(Math.pow(amplitudeXJupiter,2)-Math.pow(linear_e_Jupiter,2));
+var radiusJupiter=10.97
 
 	// Saturn
 var distSaturn=9.539;
@@ -170,6 +186,7 @@ var perihelionSaturn=9.0412;
 var amplitudeXSaturn=(aphelionSaturn+perihelionSaturn)/2; 		
 var linear_e_Saturn=amplitudeXSaturn-perihelionSaturn;					
 var amplitudeYSaturn=Math.sqrt(Math.pow(amplitudeXSaturn,2)-Math.pow(linear_e_Saturn,2));
+var radiusSaturn=9.140
 
 	// Uranus
 var distUranus=19.18;
@@ -178,6 +195,7 @@ var perihelionUranus=18.33;
 var amplitudeXUranus=(aphelionUranus+perihelionUranus)/2; 		
 var linear_e_Uranus=amplitudeXUranus-perihelionUranus;					
 var amplitudeYUranus=Math.sqrt(Math.pow(amplitudeXUranus,2)-Math.pow(linear_e_Uranus,2));
+var radiusUranus=3.981;
 
 	// Neptune
 var distNeptune=30.06;
@@ -186,6 +204,7 @@ var perihelionNeptune=29.81;
 var amplitudeXNeptune=(aphelionNeptune+perihelionNeptune)/2; 		
 var linear_e_Neptune=amplitudeXNeptune-perihelionNeptune;					
 var amplitudeYNeptune=Math.sqrt(Math.pow(amplitudeXNeptune,2)-Math.pow(linear_e_Neptune,2));
+var radiusNeptune=3.865;
 
 	// PLUTO
 var distPluto=39.5
@@ -194,8 +213,16 @@ var perihelionPluto=29.658
 var amplitudeXPluto=(aphelionPluto+perihelionPluto)/2; 		
 var linear_e_Pluto=amplitudeXPluto-perihelionPluto;					
 var amplitudeYPluto=Math.sqrt(Math.pow(amplitudeXPluto,2)-Math.pow(linear_e_Pluto,2));
+var radiusPluto=0.186;
+
+
+// Sun
+var radiusSun=109.3	// Earth radiuses
+
 
 var distMoon;
+var radiusMoon=0.2727;
+
 
 	// Weighing Astronomical units so they can fit on the Canvas nicely.
 var distWeight=110;
@@ -328,6 +355,14 @@ function init() {
 		canvasbg.height=canvasHeight;
 		
 	contextbg = canvasbg.getContext("2d");
+	
+  // FG Floating elaway refreshed canvas CANVAS 
+
+  	    canvasfg = document.getElementById("fgcanvas");
+		canvasfg.width=canvasWidth;
+		canvasfg.height=canvasHeight;
+		
+	contextfg = canvasfg.getContext("2d");
 		
   // Loads on page load. Sets upa  canvas and calls function many times per second
   
@@ -575,6 +610,8 @@ function draw() {
 		posEarthX=posCenterX;
 		posEarthY=posCenterY;
 		context.setTransform(1, 0, 0, 1, 0, 0);			// Resets the canvas
+		contextfg.setTransform(1, 0, 0, 1, 0, 0);			// Resets the canvas
+
 		};
 
 	// BUTTON TO ZOOM OUT SO PLANET TRAJECTORY FITS THE SCREEN WHEN EARTH IS AT ITS CENTRE. ORDER MATTERS
@@ -611,7 +648,7 @@ function draw() {
 			furthestPlanetfromEarth=aphelionEarth;
 		}
 		
-		distWeight=(canvasHeight*0.42)/furthestPlanetfromEarth;				// Maxium distance from the center (the earth) to the edge (FULL HAD 1080pixeld halfed) should be distance from earth to planet which is earth - sun + sun - aphelion planet
+		distWeight=(canvasHeight*0.5)/furthestPlanetfromEarth;				// Maxium distance from the center (the earth) to the edge (FULL HAD 1080pixeld halfed) should be distance from earth to planet which is earth - sun + sun - aphelion planet
 		document.getElementById("sliderSize").value=distWeight;
     };
 	
@@ -622,6 +659,7 @@ function draw() {
 			trnx=posEarthOLDx-posEarthX;
 			trny=posEarthOLDy-posEarthY; 
 			context.translate(trnx, trny);			// THIS IS WHERE THE CONTEXT TRANSLATES; AAAA
+			contextfg.translate(trnx, trny);			// THIS IS WHERE THE CONTEXT TRANSLATES; AAAA
 			
 
 			
@@ -727,19 +765,27 @@ function draw() {
 
 	// -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 	// SHOW UNITS ON BACKGROUND CNAVA
-		contextbg.clearRect(0,0, contextWidth,contextHeight);
-		contextbg.fillRect(20,20,distWeight,2);			// 110 pixels at the momoent?
-		contextbg.fillRect(20,16,2,10);					// 110 pixels at the momoent?
-		contextbg.fillRect(20+distWeight,16,2,10);		// 110 pixels at the momoent?
-
 		contextbg.font = "bold 20px Lucida Console";		
 		var postext=20+distWeight;
-		var twodotshowmanyearthdays=Math.round(daysInEarthYear*10/samplesPerEarthYear)/10;
+		var twodotshowmanyearthdays=Math.round(daysInEarthYear*100/samplesPerEarthYear)/100;
+	
+		contextbg.clearRect(0,0, contextWidth,contextHeight);
+		contextbg.fillRect(20,20,distWeight,2);			// 110 pixels at the momoent?
+		contextbg.fillRect(20+distWeight,16,2,10);		// 110 pixels at the momoent?
+		contextbg.fillRect(20,16,2,10);					// 110 pixels at the momoent?
+		contextbg.fillText(" 1 AO ≈ 150.000.000km (for distances between planets)", postext,24);				// IT's moving, have to put it in a backgroudn canvsa... yet again toa voud that.
+		
+		contextbg.fillRect(20,36,2,10);	
+		contextbg.fillRect(20,40,planetsizeMORTY,2)
+		contextbg.fillRect(20+planetsizeMORTY,36,2,10);	
+		contextbg.fillText(" 1 Earth radius",20+planetsizeMORTY,50);			
 
-		contextbg.fillText(" 1 AO ≈ 150.000.000km", postext,24);				// IT's moving, have to put it in a backgroudn canvsa... yet again toa voud that.
-		contextbg.fillText("2 dots . . = "+ twodotshowmanyearthdays + " Earth days", 20,50);				// IT's moving, have to put it in a backgroudn canvsa... yet again toa voud that.
-		contextbg.fillText("Earth Years passed: "+earthYears, 20,76);				// IT's moving, have to put it in a backgroudn canvsa... yet again toa voud that.
+		
+		contextbg.fillText("2 dots . . = "+ twodotshowmanyearthdays + " Earth days", 20,76);				// IT's moving, have to put it in a backgroudn canvsa... yet again toa voud that.
+		contextbg.fillText("Earth Years passed: "+earthYears, 20,98);				// IT's moving, have to put it in a backgroudn canvsa... yet again toa voud that.
 		contextbg.fillText("https://github.com/cveto/EarthAtCenter", 20,1060);				// IT's moving, have to put it in a backgroudn canvsa... yet again toa voud that.
+		contextbg.fillText("[planet sizes are relative to each other, but not to distance between them]", 950,1060)
+
 
 		//contextbg.closePath();
 		//contextbg.fill();
@@ -749,9 +795,14 @@ function draw() {
 	//  PUT THINGS ON CANVASES THERE ARE 2 -- HERE is where I tell javascript to actually put anything on the canvas
 		var planetsize=30			// ONLY FOR IMAGES
 		context.beginPath();
+		contextfg.beginPath();
 		
 	// PUTS IMAGES OF PLANETS OR BIG CIRCLES ON THE CANVAS (WHICH CANVAS DEPENDS ON IF DRAW IS ON OR OFF::)
 	// DRAW lines if DRAW is ON, then stop showing images
+
+	// ALLWAYS CLEAR FG CANVAS	
+		contextfg.translate(0,0)
+		contextfg.clearRect(0,0, contextWidth,contextHeight);		// DELETE EVERY FRAME
 
 	// IF CANVAS IS PERSISTENT - draw on canvas that is persistent
 		if (drawOn==0) {	
@@ -759,72 +810,72 @@ function draw() {
 
 		// START DRAWING		// ON BACKGROUND CANVAS
 			context.translate(0,0)
-			context.clearRect(0,0, contextWidth,contextHeight);
-			
+			context.clearRect(0,0, contextWidth,contextHeight);		// DELETE EVERY FRAME
+
 			// SUN
 			if (document.getElementById("markSun").checked == '1') {
 				//context.drawImage(imgsun, posSunX-planetsize/2, posSunY-planetsize/2,planetsize,planetsize)
-					drawPlanet(posSunX,posSunY,20,"yellow","orange");		
+					drawPlanet(posSunX,posSunY,planetsizeMORTY*2,"yellow","orange",context);		
 
 			} 
 			// MOON
 			if (document.getElementById("markMoon").checked == '1') {
 			//context.drawImage(imgmoon, posMoonX-planetsize/4, posMoonY-planetsize/4,planetsize/2,planetsize/2);
-					drawPlanet(posMoonX,posMoonY,10,"white","gray");		
+					drawPlanet(posMoonX,posMoonY,planetsizeMORTY*radiusMoon,"white","gray",context);		
 
 			} 
 			// MERCURY
 			if (document.getElementById("markMercury").checked == '1') {
 			//context.drawImage(imgmercury, posMercuryX-planetsize/2, posMercuryY-planetsize/2,planetsize,planetsize);
-				drawPlanet(posMercuryX,posMercuryY,planetsizeMORTY,"yellow","white");		
+				drawPlanet(posMercuryX,posMercuryY,planetsizeMORTY*radiusMercury,"yellow","white",context);		
 			
 			}  
 			// VENUS
 			if (document.getElementById("markVenus").checked == '1') {
 			//context.drawImage(imgvenus, posVenusX-planetsize/2, posVenusY-planetsize/2,planetsize,planetsize);
-			drawPlanet(posVenusX,posVenusY,planetsizeMORTY,"orange","brown");	
+			drawPlanet(posVenusX,posVenusY,planetsizeMORTY*radiusVenus,"orange","brown",context);	
 			} 
 			
 			// EARTH
 			if (document.getElementById("markEarth").checked == '1') {
 			//context.drawImage(imgearth, posEarthX-planetsize/2, posEarthY-planetsize/2,planetsize,planetsize);
-				drawPlanet(posEarthX,posEarthY,planetsizeMORTY,"green","blue");		
+				drawPlanet(posEarthX,posEarthY,planetsizeMORTY*radiusEarth,"green","blue",context);		
 			} 
 			  
 			// MARS
 			if (document.getElementById("markMars").checked == '1') {
 			//context.drawImage(imgmars, posMarsX-planetsize/2, posMarsY-planetsize/2,planetsize,planetsize);
-				drawPlanet(posMarsX,posMarsY,planetsizeMORTY,"orange","red");		
+				drawPlanet(posMarsX,posMarsY,planetsizeMORTY*radiusMars,"orange","red",context);		
 			} 
 			
 			// JUPITER
 			if (document.getElementById("markJupiter").checked == '1') {
 			//context.drawImage(imgjupiter, posJupiterX-planetsize/2, posJupiterY-planetsize/2,planetsize,planetsize);
-			drawPlanet(posJupiterX,posJupiterY,planetsizeMORTY,"brown","#ffd9b3");	
+			drawPlanet(posJupiterX,posJupiterY,planetsizeMORTY*radiusJupiter,"brown","#ffd9b3",context);	
 			}
 			
 			// Saturn
 			if (document.getElementById("markSaturn").checked == '1') {
 			//context.drawImage(imgSaturn, posSaturnX-planetsize/2, posSaturnY-planetsize/2,planetsize,planetsize);
-			drawPlanet(posSaturnX,posSaturnY,planetsizeMORTY,"gray","#fff2e6");	
+			drawPlanet(posSaturnX,posSaturnY,planetsizeMORTY*radiusSaturn,"gray","#fff2e6",context);	
 			} 
 			
 			// Uranus
 			if (document.getElementById("markUranus").checked == '1') {
 			//context.drawImage(imgUranus, posUranusX-planetsize/2, posUranusY-planetsize/2,planetsize,planetsize);
-			drawPlanet(posUranusX,posUranusY,planetsizeMORTY,"blue","#b3b3ff");	
+			drawPlanet(posUranusX,posUranusY,planetsizeMORTY*radiusUranus,"green","#b3b3ff",context);	
 			}
 			
 			// Neptune
 			if (document.getElementById("markNeptune").checked == '1') {
 			//context.drawImage(imgNeptune, posNeptuneX-planetsize/2, posNeptuneY-planetsize/2,planetsize,planetsize);
-			drawPlanet(posNeptuneX,posNeptuneY,planetsizeMORTY,"#0000e6","#e6ccff");	
+			drawPlanet(posNeptuneX,posNeptuneY,planetsizeMORTY*radiusNeptune,"#0000e6","#e6ccff",context);	
 			}
 			
 			// Pluto
 			if (document.getElementById("markPluto").checked == '1') {
 			//context.drawImage(imgPluto, posPlutoX-planetsize/2, posPlutoY-planetsize/2,planetsize,planetsize);
-			drawPlanet(posPlutoX,posPlutoY,planetsizeMORTY,"yellow","#cce6ff");	
+			drawPlanet(posPlutoX,posPlutoY,planetsizeMORTY*radiusPluto,"yellow","#cce6ff",context);	
 			}
 
 	// IF DRAW IS OFF - CLEAR SCREEN EACH TIME
@@ -841,17 +892,16 @@ function draw() {
 			if (document.getElementById("markSun").checked == '1') {
 			  context.fillStyle = 'orange';
 			  context.fillRect(posSunX, posSunY, linethickness, linethickness);
-			  
-			  // PUT THE BIG PLANET IN THE OTHER CANVAS 
-			  if (stikalo==0) {
-					drawPlanet(posSunX,posSunY,planetsizeMORTY,"yellow","orange");	
-			  }
+				drawPlanet(posSunX,posSunY,planetsizeMORTY,"yellow","orange",contextfg);	
 		} 
 		
 		// MERCURY
 		if (document.getElementById("markMercury").checked == '1') {
 		  context.fillStyle = '#FFD500';
 		  context.fillRect(posMercuryX, posMercuryY, linethickness, linethickness);
+		  
+		  //FG CANVAS
+			drawPlanet(posMercuryX,posMercuryY,planetsizeMORTY,"yellow","white",contextfg);		
 		}  
 		
 		
@@ -859,39 +909,52 @@ function draw() {
 		if (document.getElementById("markVenus").checked == '1') {
 		  context.fillStyle = 'purple';
 		  //context.fillRect(posVenusX, posVenusY, linethickness, linethickness);
+
+			// ON CANVAS 2 DRAW:
 			context.fillRect(posVenusX, posVenusY, linethickness, linethickness);
-			// context.arc(posVenusX, posVenusY, 3, 0, 2 * Math.PI);
+
+			// ON CANVAS FG DRAW:		(that canvas gets deleted every time)
+			drawPlanet(posVenusX,posVenusY,planetsizeMORTY,"orange","brown",contextfg);	
 		} 
 		
 		// EARTH
 		if (document.getElementById("markEarth").checked == '1') {
 		  context.fillStyle = '#1FF627';			
 		  context.fillRect(posEarthX, posEarthY, linethickness, linethickness);
-		  drawPlanet(posEarthX,posEarthY,planetsizeMORTY,"green","blue","contextbg");		
+		  
+		  // DRAW ON BACKROUND CTX
 
-		  	
-			// DRAW EARTH IF IT?S IN THE CENTRE
-			if (stikalo==1) {
-		  			drawPlanet(posEarthX,posEarthY,planetsizeMORTY,"green","blue");		
-			}
+			drawPlanet(posEarthX,posEarthY,planetsizeMORTY,"blue","green",contextfg);		
+
 		} 
 		 
 		// MOON
 		if (document.getElementById("markMoon").checked == '1') {
 		  context.fillStyle = 'black';
 		  context.fillRect(posMoonX, posMoonY, linethickness, linethickness);
+		  
+		  // FG CANVAS
+			drawPlanet(posMoonX,posMoonY,10,"white","gray",contextfg);		
 		} 
 		
 		// MARS
 		if (document.getElementById("markMars").checked == '1') {
 			context.fillStyle = '#F30000';
 			context.fillRect(posMarsX, posMarsY, linethickness, linethickness);
+			
+			// CONTEXT FG
+			drawPlanet(posMarsX,posMarsY,planetsizeMORTY,"orange","red",contextfg);		
+
 		} 
 		
 		// JUPITER
 		if (document.getElementById("markJupiter").checked == '1') {
 		  context.fillStyle = '#FF9933';
 		  context.fillRect(posJupiterX, posJupiterY, linethickness, linethickness);
+		  
+			//FG CANVAS
+			drawPlanet(posJupiterX,posJupiterY,planetsizeMORTY,"brown","#ffd9b3",contextfg);	
+		
 		}
 		
 		// Saturn
@@ -899,26 +962,121 @@ function draw() {
 		  context.fillStyle = '#CBB838';
 		  context.fillRect(posSaturnX, posSaturnY, linethickness, linethickness);
 		  //context.fillRect(posSaturnX-20,posSaturnY,posSaturnX+20,posSaturnY+1);
+		  
+		  // FG CANVAS
+			drawPlanet(posSaturnX,posSaturnY,planetsizeMORTY,"gray","#fff2e6",contextfg);	
+
 		}
 		
 		// Uranus
 		if (document.getElementById("markUranus").checked == '1') {
 		  context.fillStyle = '#283ECE';
 		  context.fillRect(posUranusX, posUranusY, linethickness, linethickness);
+		  
+		  //FG CANVAS
+			drawPlanet(posUranusX,posUranusY,planetsizeMORTY,"green","#b3b3ff",contextfg);	
+
 		}
 		
 		// Neptune
 		if (document.getElementById("markNeptune").checked == '1') {
 		  context.fillStyle = 'purple';
 		  context.fillRect(posNeptuneX, posNeptuneY, linethickness, linethickness);
+		  
+		  // FG CANVAS
+			drawPlanet(posNeptuneX,posNeptuneY,planetsizeMORTY,"#0000e6","#e6ccff",contextfg);	
+
 		}
 		
 		// Pluto
 		if (document.getElementById("markPluto").checked == '1') {
 		  context.fillStyle = 'blue';
 		  context.fillRect(posPlutoX, posPlutoY, linethickness, linethickness);
+		  
+		  //FG CANVAS
+			drawPlanet(posPlutoX,posPlutoY,planetsizeMORTY,"yellow","#cce6ff",contextfg);	
+
 		}
 	}
+
+	// PUT PLANET NAMES ON FG CANVAS
+			var legendLocX=50;
+			var legendLocY=150;
+			var legendPlanetSize=planetsizeMORTY;
+			var legendPWidth=10;
+			var legendYdist=45;
+			contextbg.font = "bold 20px Lucida Console";		
+
+			
+			if (document.getElementById("markPluto").checked==1) {
+				furthestPlanetfromEarth=aphelionEarth+aphelionPluto;
+
+				drawPlanet(legendLocX,legendLocY+legendYdist*8,legendPlanetSize,"yellow","#cce6ff",contextbg);
+				contextbg.fillText("PLUTO",legendLocX+legendPlanetSize+12,legendLocY+legendPlanetSize/3+legendYdist*8	);	
+			}  
+			
+			if (document.getElementById("markNeptune").checked==1) {
+				furthestPlanetfromEarth=aphelionEarth+aphelionNeptune;
+
+				drawPlanet(legendLocX,legendLocY+legendYdist*7,legendPlanetSize,"#0000e6","#e6ccff",contextbg);
+				contextbg.fillText("NEPTUNE",legendLocX+legendPlanetSize+12,legendLocY+legendPlanetSize/3+legendYdist*7	);	
+			}  
+			
+			if (document.getElementById("markUranus").checked==1) {
+				furthestPlanetfromEarth=aphelionEarth+aphelionUranus;
+				
+				drawPlanet(legendLocX,legendLocY+legendYdist*6,legendPlanetSize,"green","#b3b3ff",contextbg);
+				contextbg.fillText("URANUS",legendLocX+legendPlanetSize+12,legendLocY+legendPlanetSize/3+legendYdist*6	);					
+			}  
+			
+			if (document.getElementById("markSaturn").checked==1) {
+				furthestPlanetfromEarth=aphelionEarth+aphelionSaturn;
+				
+				drawPlanet(legendLocX,legendLocY+legendYdist*5,legendPlanetSize,"gray","#fff2e6",contextbg);
+				contextbg.fillText("SATURN",legendLocX+legendPlanetSize+12,legendLocY+legendPlanetSize/3+legendYdist*5	);					
+			}  
+			
+			if (document.getElementById("markJupiter").checked==1) {
+				furthestPlanetfromEarth=aphelionEarth+aphelionJupiter;
+				
+				drawPlanet(legendLocX,legendLocY+legendYdist*4,legendPlanetSize,"brown","#ffd9b3",contextbg);
+				contextbg.fillText("JUPITER",legendLocX+legendPlanetSize+12,legendLocY+legendPlanetSize/3+legendYdist*4	);	
+			}  
+			
+			if (document.getElementById("markMars").checked==1) {
+				furthestPlanetfromEarth=aphelionEarth+aphelionMars;
+				
+				drawPlanet(legendLocX,legendLocY+legendYdist*3,legendPlanetSize,"orange","red",contextbg);
+				contextbg.fillText("MARS",legendLocX+legendPlanetSize+12,legendLocY+legendPlanetSize/3+legendYdist*3	);			
+			}   
+			
+			if (document.getElementById("markVenus").checked==1) {
+				furthestPlanetfromEarth=aphelionEarth+aphelionVenus;
+				
+				drawPlanet(legendLocX,legendLocY+legendYdist*1,legendPlanetSize,"orange","brown",contextbg);
+				contextbg.fillText("VENUS",legendLocX+legendPlanetSize+12,legendLocY+legendPlanetSize/3+legendYdist*1	);
+			}  
+			
+			if (document.getElementById("markMercury").checked==1) {
+				furthestPlanetfromEarth=aphelionEarth+aphelionMercury;
+				
+				drawPlanet(legendLocX,legendLocY,legendPlanetSize,"yellow","white",contextbg);
+				contextbg.fillText("MERCURY",legendLocX+legendPlanetSize+12,legendLocY+legendPlanetSize/3	);
+			}  
+			
+			if (document.getElementById("markEarth").checked==1) {
+				furthestPlanetfromEarth=aphelionEarth;
+				
+				drawPlanet(legendLocX,legendLocY+legendYdist*2,legendPlanetSize,"blue","green",contextbg);
+				contextbg.fillText("EARTH",legendLocX+legendPlanetSize+12,legendLocY+legendPlanetSize/3+legendYdist*2	);				
+			}
+
+
+
+
+
+
+
 
 	// -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 	// EXPORT TO PNG - NOT ONE; EVERY FRAME - BUT SMARTLY - DEFINE FROM WHICH FRAME TO WHICH FRAME AND IF AT ALL AND ONLY IF PLAYED
@@ -988,9 +1146,16 @@ function reset_canvas() {
 function clear() {
 	context.translate(0,0);				// So it clear from the actual zero
 	contextbg.translate(0,0);
+	contextfg.translate(0,0);
+	
 	context.clearRect(-3000, -3000, 3000, 3000);			// CLEAR FUCKER!
 	context.clearRect(0, 0, canvas.width*2, canvas.height*2);
 
+	contextbg.clearRect(-3000, -3000, 3000, 3000);			// CLEAR FUCKER!
+	contextbg.clearRect(0, 0, canvas.width*2, canvas.height*2);
+	
+	contextfg.clearRect(-3000, -3000, 3000, 3000);			// CLEAR FUCKER!
+	contextfg.clearRect(0, 0, canvas.width*2, canvas.height*2);
 
 }
 
@@ -1009,26 +1174,17 @@ function toggleDraw() {
 
 // DRAWS THOSE NICE GRADIENT CIRCLES - trying to avoud images, i like software in one file
 function drawPlanet(circlex,circley,circleRadius,color1,color2,ctx) {
-	var offset=1.5;			// I DON?T KNOW HOW THIS RADIUS WORKS; IT?S A BIT STRANGEro
-
-		
-		if (ctx=="contextbg") {
-		//	var radgrad = contextbg.createRadialGradient( circlex+offset,	circley+offset,	circleRadius/4,
-		//											circlex+offset,	circley+offset,	circleRadius);
-		//	radgrad.addColorStop(0, color1);
-		//	radgrad.addColorStop(0.9, color2);
-		//	radgrad.addColorStop(1, 'rgba(1,159,98,0)');				
-		//	contextbg.fillStyle = radgrad;
-		//	contextbg.fillRect(circlex-circleRadius,circley-circleRadius,circlex+2*circleRadius,circley+2*circleRadius);	
-		} else {
-			var radgrad = context.createRadialGradient( circlex+offset,	circley+offset,	circleRadius/4,
+			var offset=1.5;	
+			var oldFillStyle=ctx.fillStyle;
+			var radgrad = ctx.createRadialGradient( circlex+offset,	circley+offset,	circleRadius/4,
 													circlex+offset,	circley+offset,	circleRadius);
 			radgrad.addColorStop(0, color1);
 			radgrad.addColorStop(0.9, color2);
 			radgrad.addColorStop(1, 'rgba(1,159,98,0)');				
-			context.fillStyle = radgrad;
-			context.fillRect(circlex-circleRadius,circley-circleRadius,circlex+2*circleRadius,circley+2*circleRadius);
-		}
+			ctx.fillStyle = radgrad;
+			ctx.fillRect(circlex-circleRadius,circley-circleRadius,circlex+2*circleRadius,circley+2*circleRadius);
+			ctx.fillStyle = oldFillStyle;
+
 }
 
 // DOWNLOAD CANVASES - merges 3 canvases, white, backgroudn and front to one.
@@ -1149,6 +1305,10 @@ function togglePlanet(body) {
 			
 			<div id="spredej">
 				  <canvas id="myCanvas"></canvas>
+			</div>
+			
+			<div id="seboljspredej">
+				  <canvas id="fgcanvas"></canvas>
 			</div>
 				  
 			<!-- They are here because I didn't find a nother way for Javascript to load images from file. -->
