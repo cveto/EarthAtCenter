@@ -25,6 +25,10 @@ input[type="range"] {
   width:30px;
 }
 
+#range_SunToScale {
+  width:30px;
+}
+
 #range_downloadFrames {
   width:30px;
 }
@@ -301,6 +305,8 @@ var linethickness=2;	// default, will be rewritten
 
 var planetSizeMORTY=15;
 var frameCounter=0;
+var unitAstronomicalkm=149597900;
+var radiusEarthkm=6317;
 
 // FLAGS
 var flag_draw=0;
@@ -309,6 +315,12 @@ var fidold2=0;
 var flag_earthYears=0;		// MY WEBSITE LOADS IN THE VIEW OF VISIBLE PLANETS
 var flag_earthYears2=1;
 var flagPlanetToScale=0;
+var flagSunToScale=0
+
+
+// OTHER
+var furthestPlanetfromEarth;
+
 // LOADS WITH HTML ONCE
 function init() {
 
@@ -619,104 +631,140 @@ function draw() {
 		};
 
 
+
+		// NORMALIZE ZOOM AND NORMALIZE SPEED
 		// BUTTON TO ZOOM OUT SO PLANET TRAJECTORY FITS THE SCREEN WHEN EARTH IS AT ITS CENTRE. ORDER MATTERS
-		var furthestPlanetfromEarth;
-		button_NormalizeZoom.onclick = function(event) {
-		
-		reset_canvas();
-		
-			posEarthX=posCenterX;
-			posEarthY=posCenterY;		
-		context.setTransform(1, 0, 0, 1, 0, 0);			// Resets the canvas
-		contextfg.setTransform(1, 0, 0, 1, 0, 0);			// Resets the canvas
-		
-		if (stikalo==1) {		// SUN IS AT CENTER IF STIKALO = 0
-		// NORMALIZE IF EARTH IS CENTER
-			// Check every one by size - from furthest to least further
-			if (document.getElementById("markPluto").checked==1) {
-				furthestPlanetfromEarth=aphelionEarth+aphelionPluto;
-				
-			} else if (document.getElementById("markNeptune").checked==1) {
-				furthestPlanetfromEarth=aphelionEarth+aphelionNeptune;
-				
-			} else if (document.getElementById("markUranus").checked==1) {
-				furthestPlanetfromEarth=aphelionEarth+aphelionUranus;
-				
-			} else if (document.getElementById("markSaturn").checked==1) {
-				furthestPlanetfromEarth=aphelionEarth+aphelionSaturn;
-				
-			} else if (document.getElementById("markJupiter").checked==1) {
-				furthestPlanetfromEarth=aphelionEarth+aphelionJupiter;
-				
-			} else if (document.getElementById("markMars").checked==1) {
-				furthestPlanetfromEarth=aphelionEarth+aphelionMars;
-				
-			}  else if (document.getElementById("markVenus").checked==1) {
-				furthestPlanetfromEarth=aphelionEarth+aphelionVenus;
-				
-			} else if (document.getElementById("markMercury").checked==1) {
-				furthestPlanetfromEarth=aphelionEarth+aphelionMercury;
-				
-			} else if (document.getElementById("markEarth").checked==1) {
-				furthestPlanetfromEarth=aphelionEarth;
-			}
-		
-		} else {
-			// NORMALIZE IF SUN IS CENTER
-				if (document.getElementById("markPluto").checked==1) {
-					furthestPlanetfromEarth=aphelionPluto;
+					button_NormalizeZoom.onclick = function(event) {
 					
-				} else if (document.getElementById("markNeptune").checked==1) {
-					furthestPlanetfromEarth=aphelionNeptune;
+					reset_canvas();
 					
-				} else if (document.getElementById("markUranus").checked==1) {
-					furthestPlanetfromEarth=aphelionUranus;
+					posEarthX=posCenterX;
+					posEarthY=posCenterY;		
+					context.setTransform(1, 0, 0, 1, 0, 0);			// Resets the canvas
+					contextfg.setTransform(1, 0, 0, 1, 0, 0);			// Resets the canvas
 					
-				} else if (document.getElementById("markSaturn").checked==1) {
-					furthestPlanetfromEarth=aphelionSaturn;
+					var samplesPerRevolution=400;
+					var customSamplesPerRevolution;
 					
-				} else if (document.getElementById("markJupiter").checked==1) {
-					furthestPlanetfromEarth=aphelionJupiter;
+					if (stikalo==1) {		// SUN IS AT CENTER IF STIKALO = 0
+					// NORMALIZE IF EARTH IS CENTER
 					
-				} else if (document.getElementById("markMars").checked==1) {
-					furthestPlanetfromEarth=aphelionMars;
+					// BY DEFAULT IT's OF MARS/2; UNLESS CHANGED
 					
-				}  else if (document.getElementById("markVenus").checked==1) {
-					furthestPlanetfromEarth=aphelionVenus;
-					
-				} else if (document.getElementById("markMercury").checked==1) {
-					furthestPlanetfromEarth=aphelionMercury;
-					
-				} else if (document.getElementById("markEarth").checked==1) {
-					furthestPlanetfromEarth=aphelionEarth;
-				}
-			}
-			
-		
+						// Check every one by size - from furthest to least further
+						if (document.getElementById("markPluto").checked==1) {
+							//furthestPlanetfromEarth=aphelionEarth+aphelionPluto;
+							furthestPlanetfromEarth=amplitudeYPluto;
+							customSamplesPerRevolution=20;
+							
+						} else if (document.getElementById("markNeptune").checked==1) {
+							//furthestPlanetfromEarth=aphelionEarth+aphelionNeptune;
+							furthestPlanetfromEarth=amplitudeXNeptune;
+							customSamplesPerRevolution=30;
+							
+						} else if (document.getElementById("markUranus").checked==1) {
+							furthestPlanetfromEarth=aphelionEarth+aphelionUranus;
+							customSamplesPerRevolution=30;
+							
+						} else if (document.getElementById("markSaturn").checked==1) {
+							furthestPlanetfromEarth=aphelionEarth+aphelionSaturn;
+							customSamplesPerRevolution=90;
+							
+						} else if (document.getElementById("markJupiter").checked==1) {
+							furthestPlanetfromEarth=aphelionEarth+aphelionJupiter;
+							customSamplesPerRevolution=90;
 
+							
+						} else if (document.getElementById("markMars").checked==1) {
+							furthestPlanetfromEarth=aphelionEarth+aphelionMars;
+							customSamplesPerRevolution=(daysEarth/daysMars)*samplesPerRevolution;
+							
+						} else if (document.getElementById("markVenus").checked==1) {
+							furthestPlanetfromEarth=aphelionEarth+aphelionVenus;
+							customSamplesPerRevolution=(daysEarth/daysVenus)*samplesPerRevolution;
 
+							
+						} else if (document.getElementById("markMercury").checked==1) {
+							furthestPlanetfromEarth=aphelionEarth+aphelionMercury;		
+							customSamplesPerRevolution=(daysEarth/daysMercury)*samplesPerRevolution;
+
+				
+						} else if (document.getElementById("markEarth").checked==1) {
+							furthestPlanetfromEarth=aphelionEarth;
+							customSamplesPerRevolution=(daysEarth/daysEarth)*samplesPerRevolution;
+							
+						} 
+					
+					} else {
+						// NORMALIZE IF SUN IS CENTER
+							if (document.getElementById("markPluto").checked==1) {
+								furthestPlanetfromEarth=amplitudeYPluto;
+								customSamplesPerRevolution=(daysEarth/daysPluto)*samplesPerRevolution;
+								
+							} else if (document.getElementById("markNeptune").checked==1) {
+								furthestPlanetfromEarth=amplitudeYNeptune;
+								customSamplesPerRevolution=(daysEarth/daysNeptune)*samplesPerRevolution;
+								
+							} else if (document.getElementById("markUranus").checked==1) {
+								furthestPlanetfromEarth=amplitudeYUranus;
+								customSamplesPerRevolution=daysEarth/daysUranus*samplesPerRevolution;
+								
+							} else if (document.getElementById("markSaturn").checked==1) {
+								furthestPlanetfromEarth=amplitudeYSaturn;
+								customSamplesPerRevolution=(daysEarth/daysSaturn)*samplesPerRevolution;
+								
+							} else if (document.getElementById("markJupiter").checked==1) {
+								furthestPlanetfromEarth=amplitudeYJupiter;
+								customSamplesPerRevolution=(daysEarth/daysJupiter)*samplesPerRevolution;
+								
+							} else if (document.getElementById("markMars").checked==1) {
+								furthestPlanetfromEarth=amplitudeYMars;
+								customSamplesPerRevolution=(daysEarth/daysMars)*samplesPerRevolution;
+								
+							} else if (document.getElementById("markEarth").checked==1) {
+								furthestPlanetfromEarth=amplitudeYEarth;
+								customSamplesPerRevolution=(daysEarth/daysEarth)*samplesPerRevolution;
+								
+							}  else if (document.getElementById("markVenus").checked==1) {
+								furthestPlanetfromEarth=amplitudeYVenus;
+								customSamplesPerRevolution=(daysEarth/daysVenus)*samplesPerRevolution;
+								
+							} else if (document.getElementById("markMercury").checked==1) {
+								furthestPlanetfromEarth=amplitudeYMercury;
+								customSamplesPerRevolution=(daysEarth/daysMercury)*samplesPerRevolution;
 		
-		distWeight=(canvasHeight*0.50)/furthestPlanetfromEarth;				// Maxium distance from the center (the earth) to the edge (FULL HAD 1080pixeld halfed) should be distance from earth to planet which is earth - sun + sun - aphelion planet
-		document.getElementById("sliderSize").value=distWeight;
-    };
+								
+							}
+						}
+						
+					// ZOOM?	
+					distWeight=((canvasHeight*0.5)-planetSizeMORTY*2)/furthestPlanetfromEarth;				// Maxium distance from the center (the earth) to the edge (FULL HAD 1080pixeld halfed) should be distance from earth to planet which is earth - sun + sun - aphelion planet		
+					document.getElementById("sliderSize").value=distWeight;
+					
+					// SAMPLES PER REVOLUTON?
+					document.getElementById("sliderSpeed").value=customSamplesPerRevolution*10;
+					
+					// NOW FOR THE SPEED - i WANT...400 samples per revolution. For earth - SMPLS=400
+					// HOW MUCH IS SMPLS for.. MERCURY?
+					// MERCURY HAS takes 200 EARTH DAYS FOR REVOLUTION
+					// I WANT HIM TO HAVE 400 SAMPLES IN THOSE 200 DAYS - which is more than EARTH HAD
+					// SMPLS = EARTHDAYS/MERCURYDAYS
+				};
 	
-	
-	
+					document.getElementById("test3").innerHTML=distWeight
+
 	// Toggle between Geocentrical and Heliocentrical model - for EARTH only.. obviusly
 		if (stikalo == 1) {
 			trnx=posEarthOLDx-posEarthX;
 			trny=posEarthOLDy-posEarthY; 
 			context.translate(trnx, trny);			// THIS IS WHERE THE CONTEXT TRANSLATES; AAAA
 			contextfg.translate(trnx, trny);			// THIS IS WHERE THE CONTEXT TRANSLATES; AAAA
-			
-
-			
 			// Had some radnom offset without rounding - even floor doesnt work..even this isn't the best
-			
 			document.getElementById("button_Switch").innerHTML = "Switch to HELIOCENTRICAL model";
 		} else {
 			document.getElementById("button_Switch").innerHTML = "Switch to GEOCENTRICAL model";
 		}
+
 
 
 	// COORDINATES CALCULATRION
@@ -728,6 +776,8 @@ function draw() {
 			// COORDINATES of Mercury
 			posMercuryX = (posSunX+distWeight*linear_e_Mercury)+(distWeight*aphelionMercury*Math.cos(fidMercury));
 			posMercuryY = posSunY+distWeight*amplitudeYMercury*Math.sin(fidMercury);
+			
+
 			
 			// COORDINATES of Venus
 			posVenusX = (posSunX+distWeight*linear_e_Venus)+(distWeight*aphelionVenus*Math.cos(fidVenus));
@@ -819,18 +869,45 @@ function draw() {
 		var postext=20+distWeight;
 		var twodotshowmanyearthdays=Math.round(daysInEarthYear*100/samplesPerEarthYear)/100;
 	
-		contextbg.clearRect(0,0, contextWidth,contextHeight);
-		contextbg.fillRect(20,20,distWeight,2);			// 110 pixels at the momoent?
-		contextbg.fillRect(20+distWeight,16,2,10);		// 110 pixels at the momoent?
-		contextbg.fillRect(20,16,2,10);					// 110 pixels at the momoent?
-		contextbg.fillText(" 1 AO ≈ 150.000.000km (for distances between planets)", postext,24);				// IT's moving, have to put it in a backgroudn canvsa... yet again toa voud that.
+			// 1 AO
+			contextbg.clearRect(0,0, contextWidth,contextHeight);
+			contextbg.fillRect(20,20,distWeight,2);			// 110 pixels at the momoent?
+			contextbg.fillRect(20+distWeight,16,2,10);		// 110 pixels at the momoent?
+			contextbg.fillRect(20,16,2,10);					// 110 pixels at the momoent?
+			contextbg.fillText(" 1 AO ≈ 150.000.000km (for distances between planets)", postext,24);				// IT's moving, have to put it in a backgroudn canvsa... yet again toa voud that.
+			
+		var planetsEnlargement=(unitAstronomicalkm/(2*radiusEarthkm))/(distWeight/planetSizeMORTY);			// How many times the planets are enlarged according to the scale - on the canvas.
+	
+		if (flagSunToScale==1) {
+			var planetSizeSun=planetSizeMORTY*radiusSun;
+			contextbg.fillText("Sun enlarged "+planetsEnlargement.toFixed(0)+" times",20,75);
+
+		} else {
+			contextbg.fillText("Sun not to scale",20,75);
+			var planetSizeSun=planetSizeMORTY*3					
+		}
 		
 		if (flagPlanetToScale==1) {
-			contextbg.fillRect(20,36,2,10);	
-			contextbg.fillRect(20,40,planetSizeMORTY,2)
-			contextbg.fillRect(20+planetSizeMORTY,36,2,10);	
-			contextbg.fillText(" 1 Earth radius",20+planetSizeMORTY,50);			
-			contextbg.fillText("[planet sizes are relative to each other, but not to distance between them. Sun size scalled down]", 650,1060)
+		
+		// Enlargement factor:
+		var ratio1AIto2r=149597900/(2*6317);	// How much 1AO is bigger than 2 radiuses of Earth
+		
+		// If 1AO/plaetSizeMorty = 1AIto2r, then enlargement = 1 (No enlargement, 1 x 1 = 1
+		// If it is 1, then the planets appear 1AIto2r larger
+		// So, if 1AO/planetSizeMorty = 5
+		
+			var planetsEnlargement=(unitAstronomicalkm/(2*radiusEarthkm))/(distWeight/planetSizeMORTY);			// How many times the planets are enlarged according to the scale - on the canvas.
+			
+			//contextbg.fillRect(20,36,2,10);	
+			//contextbg.fillRect(20,40,planetSizeMORTY,2)
+			//contextbg.fillRect(20+planetSizeMORTY,36,2,10);	
+			//contextbg.fillText(" 1 Earth radius",20+planetSizeMORTY,50);			
+			//contextbg.fillText("[planet sizes are relative to each other, but not to distance between them. Sun size scalled down]", 650,1060)
+			
+
+			contextbg.fillText("Planets enlarged "+planetsEnlargement.toFixed(0)+" times",20,50);						
+			contextbg.fillText("[planet sizes relative to each other, but not to the distance between them]", 957,1060)
+
 			
 			var planetSizeMercury=planetSizeMORTY*radiusMercury
 			var planetSizeVenus=planetSizeMORTY*radiusVenus
@@ -842,7 +919,6 @@ function draw() {
 			var planetSizeNeptune=planetSizeMORTY*radiusNeptune
 			var planetSizePluto=planetSizeMORTY*radiusPluto
 			var planetSizeMoon=planetSizeMORTY*radiusMoon
-			var planetSizeSun=planetSizeMORTY*3
 		} else {
 			var planetSizeMercury=planetSizeMORTY
 			var planetSizeVenus=planetSizeMORTY			
@@ -854,11 +930,11 @@ function draw() {
 			var planetSizeNeptune=planetSizeMORTY			
 			var planetSizePluto=planetSizeMORTY			
 			var planetSizeMoon=planetSizeMORTY	
-			var planetSizeSun=planetSizeMORTY					
+			contextbg.fillText("Planets not to scale",20,50);
 		}
 			
-		contextbg.fillText("2 dots . . = "+ twodotshowmanyearthdays + " Earth days", 20,76);				// IT's moving, have to put it in a backgroudn canvsa... yet again toa voud that.
-		contextbg.fillText("Earth Years passed: "+earthYears, 20,98);				// IT's moving, have to put it in a backgroudn canvsa... yet again toa voud that.
+		contextbg.fillText("2 dots . . = "+ twodotshowmanyearthdays + " Earth days", 20,98);				// IT's moving, have to put it in a backgroudn canvsa... yet again toa voud that.
+		contextbg.fillText("Earth Years passed: "+earthYears, 20,123);				// IT's moving, have to put it in a backgroudn canvsa... yet again toa voud that.
 		contextbg.fillText("https://github.com/cveto/EarthAtCenter", 20,1060);				// IT's moving, have to put it in a backgroudn canvsa... yet again toa voud that.
 
 
@@ -1077,7 +1153,7 @@ function draw() {
 	// PUT PLANET NAMES ON FG CANVAS
 			var legendLocX=50;
 			var legendLocY=150;
-			var legendplanetSize=planetSizeMORTY;
+			var legendplanetSize=15;
 			var legendPWidth=10;
 			var legendYdist=45;
 			contextbg.font = "bold 20px Lucida Console";		
@@ -1160,8 +1236,9 @@ function draw() {
 			var howmany=Number(document.getElementById("HowManyFrames").value);
 			var fromFrame=Number(document.getElementById("FromFrame").value);
 		
+		
 			var filename=document.getElementById("filename").value;
-			var filename=filename+frameCounter;
+			var filename=filename+frameCounter.padStart(5,'0');			// ADDS LEADING ZEROS
 
 			// ONLY DOWNLAD THAT MANY
 				
@@ -1183,6 +1260,12 @@ function draw() {
 			flagPlanetToScale=0;
 		}
 
+		// SUN TO SCALE
+		if (document.getElementById("range_SunToScale").value==1) {
+			flagSunToScale=1;
+		} else {
+			flagSunToScale=0;
+		}
 
 
 	// -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -1286,10 +1369,13 @@ function downloadCanvas(filename) {
   var whiteCanvas = document.getElementById('test_canvas');
   var backgroundCanvas = document.getElementById('backgroundCanvas');
   var animatedCanvas = document.getElementById('myCanvas');
+  var foregroundCanvas = document.getElementById("fgcanvas");
 
   var bottleContext = whiteCanvas.getContext('2d');
   bottleContext.drawImage(backgroundCanvas, 0, 0);
   bottleContext.drawImage(animatedCanvas, 0, 0);
+  bottleContext.drawImage(foregroundCanvas, 0, 0); 
+
 
   var dataURL = whiteCanvas.toDataURL("image/png");
   var link = document.createElement('a');
@@ -1347,13 +1433,14 @@ function togglePlanet(body) {
 			
 			Sun: &nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" id="markSun" checked="1"><br />
 			Moon: &nbsp;&nbsp;&nbsp;<input type="checkbox" id="markMoon" checked="1"><br /><br />
-			ZOOM:&nbsp; <input type="range" id="sliderSize" min="1" max="800" value="240"> <span id="valueSize">AA</span><br />
-			SMPLS: <input type="range" id="sliderSpeed" min="100" max="5000" value="2000"><span id="valueSpeed">AA</span><br />
+			ZOOM:&nbsp; <input type="range" id="sliderSize" min="1" max="1500" value="240"> <span id="valueSize">AA</span><br />
+			SMPLS: <input type="range" id="sliderSpeed" min="1" max="9000" value="2000"><span id="valueSpeed">AA</span><br />
 			LINE:&nbsp; <input type="range" id="sliderLineThickness" min="1" max="7" value="2"><span id="valueLine">AA</span><br />
 			<br />
 		
+			<input type="range" class="narrowRange "id="range_SunToScale" min="0" max="1" value="0"> SUN TO SCALE:</input> <br/>
 			<input type="range" class="narrowRange "id="range_planetsToScale" min="0" max="1" value="0"> PLANETS TO SCALE:</input> <br/>
-			<input type="range" class="narrowRange "id="range_planetSize" min="1" max="30" value="15"> Planet size</input> <br/>
+			<input type="range" class="narrowRange "id="range_planetSize" min="1" max="100" value="15"> Planet size</input> <br/>
 
 			<p style="font-size:60	px"><b>Earth Years: </b><span id="earthYears"></span></p> <br /> <br />
 			
@@ -1420,8 +1507,7 @@ function togglePlanet(body) {
 </div>
 
 <!-- 
-	- For moon around sun and earth:  1920x1080	Line: 2		Speed: 59	Zoom 446	
-	- For venus Earth:							Line: 3     Speed 148  Zoom 260
+	- For venus Earth:  Line 2 467 ZOOM 309							Line: 3     Speed 148  Zoom 260
 
 
  -->
