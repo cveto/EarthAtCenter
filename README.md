@@ -7,7 +7,7 @@ This question bothered me since I was in primary school and it wasn't until the 
 
 - coded in Notepad++
 
-<img src="screenshots/ControlBoard.png" alt="ControlBoard">
-<img src="screenshots/GeocentricalView.png" alt="GeocentricalView">
-<img src="screenshots/MarsAroundEarth.png" alt="MarsAroundEarth">
+<img src="Screenshots/ControlBoard.png" alt="ControlBoard">
+<img src="Screenshots/GeocentricalView.png" alt="GeocentricalView">
+<img src="Screenshots/MarsAroundEarth.png" alt="MarsAroundEarth">
 
