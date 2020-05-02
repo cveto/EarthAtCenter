@@ -302,8 +302,8 @@ input[type="range"] {
 	var posMoonY;
 
 // Poolar coordinate of the planetary body (used to derivate it to cartesian)
-// fi goes from -3.14 to +3.14 radians
-	var fi=0;
+// fi goes from -3.14 to +3.14 radians .. no it does not
+	var fi=0
 	var fiMercury=0;
 	var fiVenus=0;
 	var fiMars=0;
@@ -376,16 +376,16 @@ function init() {
 		//	}	
 	
 	// UNCHECK ALL TICKBOXES
-		document.getElementById("markMercury").checked=0;
-		document.getElementById("markVenus").checked=0;
+		document.getElementById("markMercury").checked=1;
+		document.getElementById("markVenus").checked=1;
 		document.getElementById("markEarth").checked=1;
-		document.getElementById("markMars").checked=0;
-		document.getElementById("markJupiter").checked=0;
-		document.getElementById("markSaturn").checked=0;
-		document.getElementById("markUranus").checked=0;
-		document.getElementById("markNeptune").checked=0;
-		document.getElementById("markPluto").checked=0;
-		document.getElementById("markMoon").checked=1;
+		document.getElementById("markMars").checked=1;
+		document.getElementById("markJupiter").checked=1;
+		document.getElementById("markSaturn").checked=1;
+		document.getElementById("markUranus").checked=1;
+		document.getElementById("markNeptune").checked=1;
+		document.getElementById("markPluto").checked=1;
+		document.getElementById("markMoon").checked=0;
 		document.getElementById("markSun").checked=1;
 		document.getElementById("range_downloadFrames").value=0;
 
@@ -439,9 +439,13 @@ function draw() {
 		// Because absolute speed doesn't matter. All that matters is the realitve body speed.
 		
 		//speedEarth = document.getElementById("sliderSpeed").value
-		var samplesPerEarthYear = document.getElementById("sliderSpeed").value/10;
-		speedEarth=(10*Math.PI)/(dfi*samplesPerEarthYear);
+		
+		var samplesPerEarthYear = document.getElementById("sliderSpeed").value/100;
+		
+		speedEarth=(Math.PI)/(dfi*samplesPerEarthYear);
 		document.getElementById("valueSpeed").innerHTML=samplesPerEarthYear;
+		//document.getElementById("setSmpl").value=samplesPerEarthYear;
+
 	
 	
 	//	How many dots per year -?
@@ -487,11 +491,18 @@ function draw() {
 	// -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+	
 	// ANIMATION
 	// THIS MAKES THEM TICK.  
+	
+document.getElementById("test1").innerHTML=fi;
+document.getElementById("test2").innerHTML=fiMercury;
+document.getElementById("test3").innerHTML=fiVenus;
+
+
+
 	if (timeIncreasing==1) {
 
 	 	// FI angle of the EARTH (omega*t) fid is (speed*omega*t)
-	 	fi+=0.1*dfi;			// THIS SHOULD BE TIME..it is what it is.
-	 	fid = speedEarth*fi;  		
+	 	fi+=dfi;			// THIS SHOULD BE TIME..it is what it is.
+	 	fid = speedEarth*fi;  		// TOLE ZJEBE POZICIJO.. FID SE NE SME SPREMINJAT; ČE SE SPEEDEARTH SPREMENI; MORE NADALJEVAT
 	 
 	 	// KEEPING TRACK OF TIME - this is to remember at what position draw on of was clicked  - so it only counts years from that angle.
 		//	WORKS FOR ANY ANGLE EXCEPT 0.. for that the logic is down below
@@ -539,84 +550,82 @@ function draw() {
 					earthYears+=1;
 	////	 		}
 			}
-			fi+=0.1*dfi;
+			fi+=dfi;
 	 
 	 	
 	 	// MERCURY phi
-			fiMercury+=0.1*dfi;
-			fidMercury = speedMercury*fiMercury;
+			fiMercury+=dfi;
+			fidMercury = speedMercury*fiMercury;				// FID tells the actual ANGLE of the Mercury
 			if (fidMercury > Math.PI*2) {
-			}
 				fiMercury = (fidMercury-(2*Math.PI))/speedMercury;
-			fiMercury+=0.1*dfi;
+			}
+			fiMercury+=dfi;
 	 
 	 	// VENUS phi
-			fiVenus+=0.1*dfi;
+			fiVenus+=dfi;
 			fidVenus = speedVenus*fiVenus;			// fi = omegat*t = 
 			
 			if (fidVenus >= Math.PI*2) {
-				//fiVenus = 0.1*dfi;		// NOPE; THAT EINT RIGHT.
 				fiVenus = (fidVenus-(2*Math.PI))/speedVenus;		// THE SOLUTION IS WORSE THAN THE PROBLEM. (Yeah,..You know what year this was written is...)
-
 			}
-			fiVenus+=0.1*dfi;
+			fiVenus+=dfi;
 	 
 	 	// MARS phi
-			fiMars+=0.1*dfi;
+			fiMars+=dfi;
 			fidMars = speedMars*fiMars;
 			if (fidMars > Math.PI*2) {
 				fiMars = (fidMars-(2*Math.PI))/speedMars;
 			}
-			fiMars+=0.1*dfi;
+			fiMars+=dfi;
 	 
 	 	// JUPITER phi
-			fiJupiter+=0.1*dfi;
+			fiJupiter+=dfi;
 			fidJupiter = speedJupiter*fiJupiter;
 			if (fidJupiter > Math.PI*2) {
 				fiJupiter = (fidJupiter-(2*Math.PI))/speedJupiter;
 			}
-			fiJupiter+=0.1*dfi;	
+			fiJupiter+=dfi;	
 	 
 	 	// Saturn phi
-			fiSaturn+=0.1*dfi;
+			fiSaturn+=dfi;
 			fidSaturn = speedSaturn*fiSaturn;
 			if (fidSaturn > Math.PI*2) {
 				fiSaturn = (fidSaturn-(2*Math.PI))/speedSaturn;
 			}
-			fiSaturn+=0.1*dfi;				
+			fiSaturn+=dfi;				
 	 	
 	 	// Uranus phi
-			fiUranus+=0.1*dfi;
+			fiUranus+=dfi;
 			fidUranus = speedUranus*fiUranus;
 			if (fidUranus > Math.PI*2) {
 				fiUranus = (fidUranus-(2*Math.PI))/speedUranus;
 			}
-			fiUranus+=0.1*dfi;				
+			fiUranus+=dfi;				
 	 
 	 	// Neptune phi
-			fiNeptune+=0.1*dfi;
+			fiNeptune+=dfi;
 			fidNeptune = speedNeptune*fiNeptune;
 			if (fidNeptune > Math.PI*2) {
 				fiNeptune = (fidNeptune-(2*Math.PI))/speedNeptune;
 			}
-			fiNeptune+=0.1*dfi;				
+			fiNeptune+=dfi;				
 	 	
 	 	// Pluto phi
-			fiPluto+=0.1*dfi;
+			fiPluto+=dfi;
 			fidPluto = speedPluto*fiPluto;
 			if (fidPluto > Math.PI*2) {
 				fiPluto = (fidPluto-(2*Math.PI))/speedPluto;
 			}
-			fiPluto+=0.1*dfi;				
+			fiPluto+=dfi;				
 	 	
 	 	// Testing
 	 	// Moon phi
-			fiMoon+=0.1*dfi;
+			fiMoon+=dfi;
 			fidMoon = speedMoon*fiMoon;
 			if (fidMoon > Math.PI*2) {
 				fiMoon = 0;
 			}
-			fiMoon+=0.1*dfi;	
+			fiMoon+=dfi;	
 	}
 	
     // Save old coordinates of Earth for Geocentric model 
@@ -647,7 +656,20 @@ function draw() {
 		// BUTTON TO ZOOM OUT SO PLANET TRAJECTORY FITS THE SCREEN WHEN EARTH IS AT ITS CENTRE. ORDER MATTERS
 					button_NormalizeZoom.onclick = function(event) {
 					
-					reset_canvas();
+					//  TO KEEP THE EARTH AT THE CORRECT POSTITION- SUPPOSED SMPLS=400, fi will go from 0 too 400 for one earth revolution
+					// IF I CHANGE SMPLS to 600, then it would need 600 samples.
+					// AT WHICH SAMPELE/FI is earth.... 100 , oen quarter of the way
+					// AT WHICH SAMPLE SHOULD IT BE IF CHANGED TO 600?  150.
+					// so fi must be increased by 50!  Fromula to get 50?.. 100/400=0.25  0.25*600=150
+					// fiNEW = fiOLD/SMPLOLD * SMPLNEW
+					// AND AN INCREASE OF: FIINCREASE = FINEW-FIOLD:
+					// FI=FI + fiOLD/smplOLD*smplNEW - fiOLD
+					
+					var samplesOLD = document.getElementById("sliderSpeed").value/100
+
+					
+					//reset_canvas();
+					clear();
 					
 					posEarthX=posCenterX;
 					posEarthY=posCenterY;		
@@ -748,12 +770,17 @@ function draw() {
 							}
 						}
 						
+						
+					// KEEP PLANET AT SAME POSITION
+						// FI=FI + fiOLD/smplOLD*smplNEW - fiOLD
+					correctPlanetLocation(samplesOLD,customSamplesPerRevolution);					
+					
 					// ZOOM?	
 					distWeight=((canvasHeight*0.5)-planetSizeMORTY*2)/furthestPlanetfromEarth;				// Maxium distance from the center (the earth) to the edge (FULL HAD 1080pixeld halfed) should be distance from earth to planet which is earth - sun + sun - aphelion planet		
-					document.getElementById("sliderSize").value=distWeight;
+					document.getElementById("sliderSize").value=distWeight*100;
 					
 					// SAMPLES PER REVOLUTON?
-					document.getElementById("sliderSpeed").value=customSamplesPerRevolution*10;
+					document.getElementById("sliderSpeed").value=customSamplesPerRevolution*100;
 					
 					// NOW FOR THE SPEED - i WANT...400 samples per revolution. For earth - SMPLS=400
 					// HOW MUCH IS SMPLS for.. MERCURY?
@@ -762,7 +789,6 @@ function draw() {
 					// SMPLS = EARTHDAYS/MERCURYDAYS
 				};
 	
-					document.getElementById("test3").innerHTML=distWeight
 
 	// Toggle between Geocentrical and Heliocentrical model - for EARTH only.. obviusly
 		if (stikalo == 1) {
@@ -846,12 +872,12 @@ function draw() {
 			}
 		  };
 		
-				// BUTTON TO CLEAR SCREEN
-				button_Clear.onclick = function(event) {
-					reset_canvas();	reset_canvas();	
-					earthYears=0;
-					fidold2=fid;
-				};
+////			// BUTTON TO CLEAR SCREEN
+////			button_Clear.onclick = function(event) {
+////				reset_canvas();	reset_canvas();	
+////				earthYears=0;
+////				fidold2=fid;
+////			};
 		
 		// BUTTON TO RESET SIMULATION
 		button_Reset.onclick = function(event) {
@@ -1280,8 +1306,40 @@ function draw() {
 	// -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 	// Get variables from HTML to JAVASCRIPT
 		document.getElementById("earthYears").innerHTML = earthYears;  
-		distWeight = Number(document.getElementById("sliderSize").value);
+		distWeight = Number(document.getElementById("sliderSize").value)/100;
 		document.getElementById("valueSize").innerHTML=distWeight;
+		//document.getElementById("setZoom").value=distWeight;
+
+		
+	// CHANGE ZOOM EACH FRAME?
+	
+		var zoomIncrease=Number(document.getElementById("setZoomInc").value);
+		var smplIncrease=Number(document.getElementById("setSmplInc").value);
+
+		if (timeIncreasing == 1) {
+			changeZoomEachFrameBy(zoomIncrease);			// PERCENT?
+			changeSMPLEachFrameBy(smplIncrease);			// PERCENTAGE?
+		}
+
+		
+
+
+}
+
+// CORRECTS PLANET LOCATION WHEN CHANGING SAMPLE SPEED
+function correctPlanetLocation(oldSMPLS,newSMPLS) {
+	
+	
+	fi = fi/oldSMPLS*newSMPLS
+	fiMercury = fiMercury/oldSMPLS*newSMPLS
+	fiVenus = fiVenus/oldSMPLS*newSMPLS
+	fiMars = fiMars/oldSMPLS*newSMPLS
+	fiJupiter = fiJupiter/oldSMPLS*newSMPLS
+	fiSaturn = fiSaturn/oldSMPLS*newSMPLS
+	fiUranus = fiUranus/oldSMPLS*newSMPLS
+	fiNeptune = fiNeptune/oldSMPLS*newSMPLS
+	fiPluto = fiPluto/oldSMPLS*newSMPLS
+
 }
 
 // SAME AS REFRESH
@@ -1402,6 +1460,35 @@ function togglePlanet(body) {
 	}
 }
 
+function changeSMPLEachFrameBy(SMPLdif) {
+	var oldSMPLS=Number(document.getElementById("sliderSpeed").value);
+	var newSMPLS=oldSMPLS+SMPLdif*100
+	document.getElementById("sliderSpeed").value=newSMPLS;
+	
+	// CORRECT PLANET LOCATION
+	correctPlanetLocation(oldSMPLS,newSMPLS);
+
+}
+
+// CHANGE ZOOM
+function changeZoomEachFrameBy(zoomDif) {
+
+	// ITS BETWEEN 1 and 1500
+	var oldZoom=Number(document.getElementById("sliderSize").value);
+	var newZoom=oldZoom+zoomDif*100
+	document.getElementById("sliderSize").value=newZoom;
+}
+
+function f_setZoom() {
+	var zoom=document.getElementById("setZoom").value;
+	document.getElementById("sliderSize").value=zoom*100;
+}
+
+function f_setSmpls() {
+	var smpls=document.getElementById("setSmpl").value;
+	document.getElementById("sliderSpeed").value=smpls*100;
+}
+
 </script>
 
 <body bgcolor="white" onLoad="init();">
@@ -1441,8 +1528,12 @@ function togglePlanet(body) {
 			
 			Sun: &nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" id="markSun" checked="1"><br />
 			Moon: &nbsp;&nbsp;&nbsp;<input type="checkbox" id="markMoon" checked="1"><br /><br />
-			ZOOM:&nbsp; <input type="range" id="sliderSize" min="1" max="1500" value="240"> <span id="valueSize">AA</span><br />
-			SMPLS: <input type="range" id="sliderSpeed" min="1" max="9000" value="2000"><span id="valueSpeed">AA</span><br />
+			ZOOM:&nbsp; <input type="range" id="sliderSize" min="1" max="150000" value="24000"> <span id="valueSize">AA</span><br />
+			SMPLS: <input type="range" id="sliderSpeed" min="1" max="90000" value="20000"><span id="valueSpeed">AA</span><br />
+		
+
+
+
 			LINE:&nbsp; <input type="range" id="sliderLineThickness" min="1" max="7" value="2"><span id="valueLine">AA</span><br />
 			<br />
 		
@@ -1452,6 +1543,13 @@ function togglePlanet(body) {
 
 			<p style="font-size:60	px"><b>Earth Years: </b><span id="earthYears"></span></p> <br /> <br />
 			
+			
+			SET ZOOM: &nbsp;<input type="text" id="setZoom" size="3" value="510"></input> <button onclick="f_setZoom();">SET</button>   <br />
+			SET SMPLS: <input type="text" id="setSmpl" size="3" value="200"></input> <button onclick="f_setSmpls();">SET</button><br />
+			SET ZOOM/FRAME increase:&nbsp; <input type="text" id="setZoomInc" size="3" value="0"></input><br />
+			SET SMPLS/FRAME increase: <input type="text" id="setSmplInc" size="3" value="0"></input><br />
+			<br />
+			<br />
 			
 <!-- 			M - DRAW or DON'T DRAW MERCURY <br>
 			V - DRAW or DON'T DRAW CENUS <br>
