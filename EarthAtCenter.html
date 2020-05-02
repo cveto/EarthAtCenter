@@ -846,12 +846,12 @@ function draw() {
 			}
 		  };
 		
-////			// BUTTON TO CLEAR SCREEN
-////			button_Clear.onclick = function(event) {
-////				reset_canvas();	reset_canvas();	
-////				earthYears=0;
-////				fidold2=fid;
-////			};
+				// BUTTON TO CLEAR SCREEN
+				button_Clear.onclick = function(event) {
+					reset_canvas();	reset_canvas();	
+					earthYears=0;
+					fidold2=fid;
+				};
 		
 		// BUTTON TO RESET SIMULATION
 		button_Reset.onclick = function(event) {
@@ -1453,7 +1453,7 @@ function togglePlanet(body) {
 			<p style="font-size:60	px"><b>Earth Years: </b><span id="earthYears"></span></p> <br /> <br />
 			
 			
-			M - DRAW or DON'T DRAW MERCURY <br>
+<!-- 			M - DRAW or DON'T DRAW MERCURY <br>
 			V - DRAW or DON'T DRAW CENUS <br>
 			E - DRAW or DON'T DRAW EARTH <br>
 			M - DRAW or DON'T DRAW MARS <br>
@@ -1464,7 +1464,7 @@ function togglePlanet(body) {
 			<br><br>
 			C - CLEAR IMAGE && RESET TIME <br />
 			D - DRAW ON/OFF<br /><br />
-			
+			 -->
 		<input type="range" class="narrowRange" id="range_downloadFrames" min="0" max="1" value="0"> DOWNLOAD FRAMES </input> <br/>
 		FROM:<input type="text" id="FromFrame" size="3"></input>
 		TO:<input type="text" id="HowManyFrames" size="3"></input><br />
@@ -1526,6 +1526,16 @@ ffmpeg -err_detect aggressive -fflags discardcorrupt -framerate 60 -pattern_type
 ffmpeg -err_detect aggressive -fflags discardcorrupt -r 60 -pattern_type glob -i '*.png' -s:v 1920x1080 -c:v libx264 \-profile:v high -crf 1 -pix_fmt yuv420p Mercury_60_1_mr.mp4
 ffmpeg -err_detect aggressive -fflags discardcorrupt -r 60 -pattern_type glob -i '*.png' -vf scale=-1:2160 -c:v libx264 \-profile:v high -crf 1 -pix_fmt yuv420p Mercury_60_1_mr_4K.mp4
 
+ffmpeg -err_detect aggressive -fflags discardcorrupt -r 60 -pattern_type glob -i '*.png' -vf scale=-1:2160 -c:v libx264 \-profile:v high -crf 1 -pix_fmt yuv420p Mars_60_1_mr_4K.mp4
+ffmpeg -err_detect aggressive -fflags discardcorrupt -framerate 60 -pattern_type glob -i '*.png' -s:v 1920x1080 -c:v libx264 \-profile:v high -crf 1 -pix_fmt yuv420p Mercury_60_1.mp4
+ffmpeg -err_detect aggressive -fflags discardcorrupt -r 60 -pattern_type glob -i '*.png' -vf scale=-1:1080 -c:v libx264 \-profile:v high -crf 1 -pix_fmt yuv420p Mars_60_1_mr_HD.mp4
+ffmpeg -err_detect aggressive -fflags discardcorrupt -r 60 -pattern_type glob -i '*.png' -vf scale=-1:4320 -c:v libx264 \-profile:v high -crf 1 -pix_fmt yuv420p Mars_60_1_mr_HD.mp4
+
+
+ffmpeg -i Venus_60_1_mr_8K.mp4 -i kamogawa.wav -c:v copy -c:a aac -shortest output.mp4
+
  -->
+ 
+ 
 </body>
 </html>
